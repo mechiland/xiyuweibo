@@ -1,0 +1,78 @@
+html, body {
+  padding: 0px;
+  margin: 0px;
+  overflow: hidden;
+  background: url(../images/purty_wood.png);
+  color: #323232;
+  -webkit-user-select: none;
+  font: 12px "Lucida Sans Unicode", "Myriad Pro", "Hiragino Sans GB", "Heiti SC", "微软雅黑", Verdana, Helvetica, sans-serif, SimHei, "黑体";  
+  cursor: default;
+}
+
+h1 {
+  margin: 18% 0;
+  text-align: center;
+  font-family: helvetica;
+}
+header {
+  color: #fff;
+  text-shadow: none;  
+  height: 36px;
+  background: -webkit-linear-gradient(top, #e8e8e8, #9b9ea0);
+  border-top: 1px solid #fff;
+  box-shadow: 1px -1px 0px #999;
+  position: fixed;
+  display: block;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+    padding-left: 10px;
+}
+
+header img {
+  margin-top: 5px;
+  width: 24px;
+  height: 24px;
+}
+
+.container {
+  margin-bottom: 36px;
+  overflow: auto;
+  height: 99%;
+  max-width: 400px;
+  border-right: 1px solid #ccc;
+}
+
+ul, li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+ul.bo_list li {
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.single_bo {
+  padding: 10px 15px 10px 10px;
+}
+
+.single_bo img {
+  border-radius: 4px;
+}
+.single_bo .avatar {
+  float: left;
+}
+.single_bo .content{
+  margin-left: 58px;
+  -webkit-user-select: text;
+
+}
+.single_bo .user {
+  display: block;
+  font-weight: bold;
+}
+
+.odd {
+  background: -webkit-linear-gradient(top, #fff, #f4f4f4);
+}
