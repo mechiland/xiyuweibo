@@ -82,6 +82,7 @@ ul.bo_list li {
 .single_bo .content{
   margin-left: 58px;
   -webkit-user-select: text;
+  position: relative;
 }
 
 .rt_avatar img {
@@ -116,3 +117,7 @@ ul.bo_list li {
   float: left;
 }
 
+.action {
+  float: right;
+  font-weight: normal;
+}
