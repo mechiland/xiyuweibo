@@ -13,11 +13,22 @@ title: Hello World!
   <img id="btn_login" src="assets/images/Star.png" />
 </nav>
 
+<script id="retweet_template" type="text/x-dot-template">
+<div class="rt_content">
+  <span class="rt_user">[[=it.user.name]]：</span><span class="rt_text">[[=it.text]]</span>
+</div>
+</script>
+
 <script id="template" type="text/x-dot-template">
 <li class="bo_container">
   <div class="single_bo">
     <div class="avatar"><img src="[[=it.user.profile_image_url]]"/></div>
-    <div class="content"><span class="user">[[=it.user.name]]</span><span class="text">[[=it.text]]</span></div>
+    <div class="content">
+      <span class="user">[[=it.user.name]]</span>
+      <span class="text">[[=it.text]]</span>
+      [[=it.rt_content]]
+    </div>
+    <div style="clear:both"></div>
   </div>
 </li>
 
@@ -27,7 +38,22 @@ title: Hello World!
   <div class="left">
     <div class="container">
       <ul class="bo_list">
-
+        {% for x in site.test_data %}
+        <li class="bo_container">
+          <div class="single_bo">
+            <div class="avatar"><img src="assets/images/user/1.jpeg"/></div>
+            <div class="content">
+              <span class="user">[[=it.user.name]]</span>
+              <span class="text">[[=it.text]]</span>
+              <div class="rt_content">
+                <span class="rt_user">[[=it.user.name]]</span>
+                <span class="text">这是转发内容。转发内容</span>
+              </div> 
+            </div>
+            <div style="clear:both"></div>
+          </div>
+        </li>
+        {% endfor %}
       </ul>
     </div>
   </div>

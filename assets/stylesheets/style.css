@@ -42,6 +42,7 @@ nav img {
   margin-bottom: 36px;
   overflow: auto;
   max-width: 400px;
+  min-width: 320px;
   border-right: 1px solid #ccc;
   z-index: 100;
   position: relative;
@@ -72,10 +73,6 @@ ul.bo_list li {
   border-bottom: 1px solid #dedede;
 }
 
-.single_bo {
-  padding: 10px 15px 10px 10px;
-}
-
 .single_bo img {
   border-radius: 4px;
 }
@@ -85,8 +82,20 @@ ul.bo_list li {
 .single_bo .content{
   margin-left: 58px;
   -webkit-user-select: text;
-
 }
+
+.rt_avatar img {
+  width: 40px;
+  height: 40px;
+  float: left;
+  margin-left: 10px;
+  border-radius: 4px;
+}
+
+.rt_content{
+  background-color: #eee;
+}
+
 .single_bo .user {
   display: block;
   font-weight: bold;
@@ -94,7 +103,8 @@ ul.bo_list li {
 
 .bo_container {
   background: -webkit-linear-gradient(top, #fff, #f4f4f4);
-  min-height: 70px;
+  min-height: 50px;
+  padding: 10px 15px 10px 10px;
 }
 
 .selected {
@@ -105,3 +115,4 @@ ul.bo_list li {
 .left {
   float: left;
 }
+
