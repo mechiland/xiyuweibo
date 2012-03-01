@@ -14,7 +14,9 @@ h1 {
   text-align: center;
   font-family: helvetica;
 }
-header {
+
+nav {
+  display: block;
   color: #fff;
   text-shadow: none;  
   height: 36px;
@@ -26,10 +28,11 @@ header {
   bottom: 0;
   left: 0;
   width: 100%;
-    padding-left: 10px;
+  padding-left: 10px;
+  z-index: 1000;
 }
 
-header img {
+nav img {
   margin-top: 5px;
   width: 24px;
   height: 24px;
@@ -38,9 +41,25 @@ header img {
 .container {
   margin-bottom: 36px;
   overflow: auto;
-  height: 99%;
   max-width: 400px;
   border-right: 1px solid #ccc;
+  z-index: 100;
+  position: relative;
+}
+
+.sub_container {
+  position: absolute;
+  margin-bottom: 36px;
+  overflow: auto;
+  max-width: 400px;
+  border-right: 1px solid #ccc; 
+  z-index: 1; 
+  display: none;
+}
+
+.sub_container img {
+  width: 40px;
+  height: 40px;
 }
 
 ul, li {
@@ -50,7 +69,7 @@ ul, li {
 }
 
 ul.bo_list li {
-  border-bottom: 1px solid #f1f1f1;
+  border-bottom: 1px solid #dedede;
 }
 
 .single_bo {
@@ -73,6 +92,15 @@ ul.bo_list li {
   font-weight: bold;
 }
 
-.odd {
+.bo_container {
   background: -webkit-linear-gradient(top, #fff, #f4f4f4);
+}
+
+.selected {
+  box-shadow: 1px 1px 2px #ddd inset;
+  background: -webkit-linear-gradient(top, #f0f0f0, #f6f6f6);
+}
+
+.left {
+  float: left;
 }
