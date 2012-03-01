@@ -9,11 +9,22 @@
     return setInterval(func, ms);
   };
 
+  doT.templateSettings = {
+    evaluate: /\[\[([\s\S]+?)\]\]/g,
+    interpolate: /\[\[=([\s\S]+?)\]\]/g,
+    encode: /\[\[!([\s\S]+?)\]\]/g,
+    use: /\[\[#([\s\S]+?)\]\]/g,
+    define: /\]\]##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\]\]/g,
+    varname: 'it',
+    strip: true,
+    append: true
+  };
+
   $(function() {
     var _last;
     _last = null;
     $(".container").attr("style", "height: " + (window.innerHeight - 36) + "px");
-    $(".bo_container").click(function() {
+    $(document).on("click", ".bo_container", function() {
       if (_last !== null) {
         _last.removeClass("selected");
         $('.sub_container').animate({
@@ -29,33 +40,31 @@
     $(window).resize(function() {
       return $(".container").attr("style", "height: " + (window.innerHeight - 36) + "px");
     });
-    return $("#btn").click(function() {
-      var l;
-      macgap.window.open({
-        url: "./auth_sina.html",
-        width: 640,
-        height: 480
+    $("#btn_fetch").click(function() {
+      var fn;
+      fn = doT.template($("#template").text());
+      return $.getJSON("statuses.json", function(data) {
+        var s, text, _i, _len, _ref, _results;
+        _ref = data["statuses"];
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          s = _ref[_i];
+          text = fn(s);
+          _results.push($(".bo_list").prepend(text));
+        }
+        return _results;
       });
+    });
+    return $("#btn_login").click(function() {
+      var l;
       l = macgap.window.open({
         url: "public/auth_sina.html",
         width: 640,
         height: 480
       });
-      repeat(1000, function() {
-        return console.log(l.url());
+      return $.get("http://www.google.com", function(data) {
+        return console.log(data);
       });
-      macgap.window.open({
-        url: "http://scottjehl.github.com/Respond/test/test.html",
-        width: 500,
-        height: 400
-      });
-      delay(1000, function() {
-        return macgap.window.resize({
-          width: 500,
-          height: 300
-        });
-      });
-      return console.log("========" + macgap.window.url());
     });
   });
 

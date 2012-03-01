@@ -94,6 +94,7 @@ ul.bo_list li {
 
 .bo_container {
   background: -webkit-linear-gradient(top, #fff, #f4f4f4);
+  min-height: 70px;
 }
 
 .selected {
