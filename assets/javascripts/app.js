@@ -1,108 +1,122 @@
-(function() {
-  var check, delay, repeat;
+var check, delay, render_status, repeat;
 
-  delay = function(ms, func) {
-    return setTimeout(func, ms);
-  };
+delay = function(ms, func) {
+  return setTimeout(func, ms);
+};
 
-  repeat = function(ms, func) {
-    return setInterval(func, ms);
-  };
+repeat = function(ms, func) {
+  return setInterval(func, ms);
+};
 
-  doT.templateSettings = {
-    evaluate: /\[\[([\s\S]+?)\]\]/g,
-    interpolate: /\[\[=([\s\S]+?)\]\]/g,
-    encode: /\[\[!([\s\S]+?)\]\]/g,
-    use: /\[\[#([\s\S]+?)\]\]/g,
-    define: /\]\]##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\]\]/g,
-    varname: 'it',
-    strip: true,
-    append: true
-  };
+doT.templateSettings = {
+  evaluate: /\[\[([\s\S]+?)\]\]/g,
+  interpolate: /\[\[=([\s\S]+?)\]\]/g,
+  encode: /\[\[!([\s\S]+?)\]\]/g,
+  use: /\[\[#([\s\S]+?)\]\]/g,
+  define: /\]\]##\s*([\w\.$]+)\s*(\:|=)([\s\S]+?)#\]\]/g,
+  varname: 'it',
+  strip: true,
+  append: true
+};
 
-  check = function(w) {
-    var fn, pattern, token, url;
-    url = w.url();
-    pattern = /#access_token=([^&]+)/;
-    if (!pattern.test(w.url())) {
-      return delay(2000, function() {
-        return check(w);
-      });
-    } else {
-      token = w.url().match(pattern)[1];
-      url = "https://api.weibo.com/2/statuses/home_timeline.json?access_token=" + token;
-      fn = doT.template($("#template").text());
-      return $.getJSON(url, function(data) {
-        var s, text, _i, _len, _ref, _results;
-        console.log(data["statuses"].length);
-        _ref = data["statuses"].reverse();
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          s = _ref[_i];
-          s.text = s.text.autoLink();
-          text = fn(s);
-          _results.push($(".bo_list").prepend(text));
-        }
-        return _results;
-      });
-    }
-  };
-
-  $(function() {
-    var _last;
-    _last = null;
-    $(".container").attr("style", "height: " + (window.innerHeight - 36) + "px");
-    $(document).on("click", ".bo_container", function() {
-      if (_last !== null) {
-        _last.removeClass("selected");
-        $('.sub_container').animate({
-          "left": "0px"
-        }, "fast").hide();
+check = function(w) {
+  var fn, pattern, token, url;
+  url = w.url();
+  pattern = /#access_token=([^&]+)/;
+  if (!pattern.test(w.url())) {
+    return delay(2000, function() {
+      return check(w);
+    });
+  } else {
+    token = w.url().match(pattern)[1];
+    url = "https://api.weibo.com/2/statuses/home_timeline.json?access_token=" + token;
+    fn = doT.template($("#template").text());
+    return $.getJSON(url, function(data) {
+      var s, text, _i, _len, _ref, _results;
+      console.log(data["statuses"].length);
+      _ref = data["statuses"].reverse();
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        s = _ref[_i];
+        s.text = s.text.autoLink();
+        text = fn(s);
+        _results.push($(".bo_list").prepend(text));
       }
-      _last = $(this);
-      $(this).addClass("selected");
-      return $('.sub_container').show().animate({
-        "left": $(this).width() + "px"
-      }, "fast");
+      return _results;
     });
-    $(document).on("click", ".single_bo .content a", function() {
-      macgap.app.open($(this).attr("href"));
-      return false;
+  }
+};
+
+render_status = function(s, template) {
+  var fn, fullFn;
+  if (template == null) template = "#template";
+  fn = doT.template($(template).text());
+  fullFn = doT.template($(template).text());
+  s.text = s.text.autoLink();
+  return fn(s);
+};
+
+$(function() {
+  var statuses, _last;
+  statuses = new Statuses;
+  statuses.on("add", function(s) {
+    s = s.toJSON();
+    return $(".bo_list").prepend(render_status(s));
+  });
+  _last = null;
+  $(".container").attr("style", "height: " + (window.innerHeight - 36) + "px");
+  $(document).on("click", ".bo_container", function() {
+    var id;
+    if (_last !== null) _last.removeClass("selected");
+    $(this).addClass("selected");
+    _last = $(this);
+    id = $(this).attr("data-id");
+    $(".inner .anim_block").each(function() {
+      var s;
+      if ($(this).css("left") === "-400px") {
+        s = statuses.get(id);
+        s = s.toJSON();
+        return $(this).html(render_status(s, "#template_full"));
+      }
     });
-    $(window).resize(function() {
-      return $(".container").attr("style", "height: " + (window.innerHeight - 36) + "px");
-    });
-    $("#btn_fetch").click(function() {
-      var fn, rtFn;
-      fn = doT.template($("#template").text());
-      rtFn = doT.template($("#retweet_template").text());
-      return $.getJSON("home_timeline.json", function(data) {
-        var s, text, _i, _len, _ref, _results;
-        _ref = data["statuses"].reverse();
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          s = _ref[_i];
-          s.rt_content = "";
-          if (s.retweeted_status) {
-            s.retweeted_status.text = s.retweeted_status.text.autoLink();
-            s["rt_content"] = rtFn(s.retweeted_status);
-          }
-          s.text = s.text.autoLink();
-          text = fn(s);
-          _results.push($(".bo_list").prepend(text));
+    return $('.inner').animate({
+      "left": "+400px"
+    }, "slow", function() {
+      return $(".inner .anim_block").each(function(el) {
+        var new_width, old;
+        old = $(this).css("left");
+        if (old === "0px") {
+          new_width = "-400px";
+        } else {
+          new_width = "0px";
         }
-        return _results;
+        $(this).css("left", new_width);
+        return $(".inner").css("left", "0px");
       });
-    });
-    return $("#btn_login").click(function() {
-      var l;
-      l = macgap.window.open({
-        url: "public/auth_sina.html",
-        width: 640,
-        height: 480
-      });
-      return check(l);
     });
   });
-
-}).call(this);
+  $(document).on("click", ".single_bo .content a", function() {
+    macgap.app.open($(this).attr("href"));
+    return false;
+  });
+  $(window).resize(function() {
+    return $(".container, .sub_container").attr("style", "height: " + (window.innerHeight - 36) + "px");
+  });
+  $("#btn_fetch").click(function() {
+    var url;
+    url = "";
+    if (typeof magcap !== 'undefined') url = "public/";
+    return $.getJSON("" + url + "home_timeline.json", function(data) {
+      return statuses.add(data["statuses"].reverse());
+    });
+  });
+  return $("#btn_login").click(function() {
+    var l;
+    l = macgap.window.open({
+      url: "auth_sina.html",
+      width: 640,
+      height: 480
+    });
+    return check(l);
+  });
+});

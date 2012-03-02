@@ -28,41 +28,57 @@ check = (w) ->
         text = fn(s)
         $(".bo_list").prepend(text)
 
+render_status = (s, template="#template") ->
+  fn = doT.template($(template).text())
+  fullFn = doT.template($(template).text())
+  s.text = s.text.autoLink()
+  return fn(s)
+  
 $ ->
+  statuses = new Statuses
+  statuses.on "add", (s)-> 
+    s = s.toJSON()    
+    $(".bo_list").prepend(render_status (s))
+  
   _last = null
+  
   $(".container").attr("style", "height: " + (window.innerHeight - 36) + "px")
 
   $(document).on "click", ".bo_container", ->
     if _last != null
       _last.removeClass("selected")
-      $('.sub_container').animate({"left": "0px"}, "fast").hide()
-      
+    
+    $(this).addClass("selected");
     _last = $(this)
-    $(this).addClass("selected")
-    $('.sub_container').show().animate({"left": $(this).width() + "px"}, "fast")
+    
+    id = $(this).attr("data-id")
+    
+    $(".inner .anim_block").each ->
+      if $(this).css("left") == "-400px"
+        s = statuses.get(id)
+        s = s.toJSON()
+        $(this).html(render_status(s, "#template_full"))        
+    
+    $('.inner').animate {"left": "+400px"}, "slow", -> 
+      $(".inner .anim_block").each (el) ->
+        old = $(this).css("left")
+        if old == "0px" then new_width = "-400px" else new_width = "0px"
+        $(this).css("left", new_width)
+        $(".inner").css("left", "0px")
   
   $(document).on "click", ".single_bo .content a", ->
     macgap.app.open($(this).attr("href"))
     return false
   
   $(window).resize ->
-    $(".container").attr("style", "height: " + (window.innerHeight - 36) + "px")
+    $(".container, .sub_container").attr("style", "height: " + (window.innerHeight - 36) + "px")
   
   $("#btn_fetch").click ->
-    fn = doT.template($("#template").text())
-    rtFn = doT.template($("#retweet_template").text())
-    $.getJSON "home_timeline.json", (data) -> 
-      for s in data["statuses"].reverse()
-        s.rt_content = ""
-        if s.retweeted_status
-          s.retweeted_status.text = s.retweeted_status.text.autoLink()
-          s["rt_content"] = rtFn(s.retweeted_status)
-        s.text = s.text.autoLink()
-        text = fn(s)
-        
-        $(".bo_list").prepend(text)
+    url = ""
+    if typeof(magcap) != 'undefined' then url = "public/"
+    $.getJSON "#{url}home_timeline.json", (data) -> 
+      statuses.add(data["statuses"].reverse())
   
   $("#btn_login").click ->
-    l = macgap.window.open({url: "public/auth_sina.html", width: 640, height: 480})
-    check(l);    
-
+    l = macgap.window.open({url: "auth_sina.html", width: 640, height: 480})
+    check(l);

@@ -4,7 +4,7 @@ def watch
   fsevent = FSEvent.new
   fsevent.watch "assets/javascripts" do |directories|
     puts "Detected change inside: #{directories.inspect}"
-    system "coffee -c assets/javascripts/app.coffee"
+    system "coffee -cb assets/javascripts/*.coffee"
     fsevent.stop
     watch
   end

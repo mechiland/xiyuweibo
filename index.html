@@ -3,6 +3,11 @@ layout: default
 title: Hello World!
 ---
 
+<script>
+  macgap.window.resize({width: 300, height: 600})
+  
+</script>
+
 <nav>
   <img src="assets/images/Chat.png" />
   <img src="assets/images/Chatting.png" />
@@ -13,69 +18,70 @@ title: Hello World!
   <img id="btn_login" src="assets/images/Star.png" />
 </nav>
 
-<script id="retweet_template" type="text/x-dot-template">
-<div class="rt_content">
-  <span class="rt_user">[[=it.user.name]]：</span><span class="rt_text">[[=it.text]]</span>
-</div>
-</script>
-
-<script id="template" type="text/x-dot-template">
-<li class="bo_container">
+<script id="template_full" type="text/x-dot-template">
+<li class="bo_container" data-id="[[=it.id]]">
   <div class="single_bo">
     <div class="avatar"><img src="[[=it.user.profile_image_url]]"/></div>
     <div class="content">
       <div class="user">[[=it.user.name]]<div class="action">评论 转发 收藏</div></div>
       <span class="text">[[=it.text]]</span>
-      [[=it.rt_content]]
+      [[ if (it.bmiddle_pic) {]]
+      <div class="tweet_image"><img src="[[=it.bmiddle_pic]]" /></div>
+      [[ } ]]
+      [[ if (it.retweeted_status) { ]]
+        <div class="rt_content">
+          <span class="rt_user">[[=it.retweeted_status.user.name]]：</span><span class="rt_text">[[=it.retweeted_status.text]]</span>
+          [[ if (it.retweeted_status.bmiddle_pic) {]]
+          <div class="tweet_image"><img src="[[=it.retweeted_status.bmiddle_pic]]" /></div>
+          [[ } ]]
+        </div>
+      [[ } ]]
     </div>
     <div style="clear:both"></div>
   </div>
 </li>
+</script>
 
+<script id="template" type="text/x-dot-template">
+<li class="bo_container" data-id="[[=it.id]]">
+  <div class="single_bo">
+    <div class="avatar"><img src="[[=it.user.profile_image_url]]"/></div>
+    <div class="content">
+      <div class="user">[[=it.user.name]]<div class="action">评论 转发 收藏</div></div>
+      <span class="text">[[=it.text]]</span>
+      [[ if (it.retweeted_status) { ]]
+        <div class="rt_content">
+          <span class="rt_user">[[=it.retweeted_status.user.name]]：</span><span class="rt_text">[[=it.retweeted_status.text]]</span>
+        </div>
+      [[ } ]]
+    </div>
+    <div style="clear:both"></div>
+  </div>
+</li>
 </script>
 
 <div class="page">
   <div class="left">
     <div class="container">
       <ul class="bo_list">
-        {% for x in site.test_data %}
-        <li class="bo_container">
-          <div class="single_bo">
-            <div class="avatar"><img src="assets/images/user/1.jpeg"/></div>
-            <div class="content">
-              <span class="user">[[=it.user.name]]</span>
-              <span class="text">[[=it.text]]</span>
-              <div class="rt_content">
-                <span class="rt_user">[[=it.user.name]]</span>
-                <span class="text">这是转发内容。转发内容</span>
-              </div> 
-            </div>
-            <div style="clear:both"></div>
-          </div>
-        </li>
-        {% endfor %}
       </ul>
     </div>
   </div>
   
   <div class="left">
-    <div class="sub_container">
-      <ul class="sub_list">
-        <li class="bo_container">
-          <div class="single_bo">
-            <div class="avatar"><img src="assets/images/user/1.jpeg"/></div>
-            <div class="content"><span class="user">薛蛮子</span><span class="text">#热博重温#崔永元：我把中国当下知识分子分成三类.一类叫拍案而起；一类叫洁身自好；第三类叫随波逐流。历史角度看，最需要的是拍案而起的知识分子.现在知识分子，能做到洁身自好就相当不错了.哪一次商业炒作，哪一次对消费者、公众的欺骗，后头没有学者、科学家甚至院士帮忙？哪一次没有？（@袁国宝）</span></div>
+    <div class="sub_container" id="sub_container">
+      <div class="inner">
+        <div id="block1" class="anim_block">
+          <div class="side_content" id="side_content_1">
+            
           </div>
-        </li>
-        {% for img in site.test_data%}
-        <li class="bo_container">
-          <div class="single_bo">
-            <div class="avatar"><img src="assets/images/user/3.jpeg"/></div>
-            <div class="content"><span class="user">薛蛮子</span><span class="text">转发微博</span></div>
+        </div>
+        <div id="block2" class="anim_block">
+          <div class="side_content" id="side_content_2">
+            
           </div>
-        </li>
-        {% endfor %}
-      </ul>
+        </div>
+      </div>
     </div>
   </div>
   <div style="clear:both"></div>

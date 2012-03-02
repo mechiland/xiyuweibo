@@ -51,16 +51,38 @@ nav img {
 .sub_container {
   position: absolute;
   margin-bottom: 36px;
-  overflow: auto;
-  max-width: 400px;
+  overflow-x: hidden;
+  width: 400px;
+  height: 100%;
   border-right: 1px solid #ccc; 
-  z-index: 1; 
-  display: none;
+  z-index: 1;
 }
 
-.sub_container img {
-  width: 40px;
-  height: 40px;
+.inner {
+  width:800px;
+  background-color: #fff;
+  position: relative;
+  height: 100%;
+  z-index: 1px;
+}
+
+.anim_block {
+  width: 400px;
+  height: 100%;
+  position: absolute;
+  background-color: #fff;
+}
+
+#block1 {
+  left: -400px;
+}
+
+#block2 {
+  left: 0px;
+}
+
+.side_content {
+  padding: 10px;
 }
 
 ul, li {
@@ -93,8 +115,13 @@ ul.bo_list li {
   border-radius: 4px;
 }
 
+.tweet_image img {
+  width: 100%;
+}
+
 .rt_content{
-  background-color: #eee;
+  padding: 2px 0px;
+  border-top: 1px dotted #999;
 }
 
 .single_bo .user {
