@@ -38,7 +38,7 @@ nav img {
   height: 24px;
 }
 
-.container {
+.main {
   margin-bottom: 36px;
   overflow: auto;
   max-width: 400px;
@@ -46,9 +46,10 @@ nav img {
   border-right: 1px solid #ccc;
   z-index: 100;
   position: relative;
+  box-shadow: 3px 0px 10px #999;
 }
 
-.sub_container {
+.side {
   position: absolute;
   margin-bottom: 36px;
   overflow-x: hidden;
@@ -56,6 +57,8 @@ nav img {
   height: 100%;
   border-right: 1px solid #ccc; 
   z-index: 1;
+  top: 0px;
+  left: 400px;
 }
 
 .inner {

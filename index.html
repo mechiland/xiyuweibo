@@ -3,11 +3,6 @@ layout: default
 title: Hello World!
 ---
 
-<script>
-  macgap.window.resize({width: 300, height: 600})
-  
-</script>
-
 <nav>
   <img src="assets/images/Chat.png" />
   <img src="assets/images/Chatting.png" />
@@ -19,7 +14,7 @@ title: Hello World!
 </nav>
 
 <script id="template_full" type="text/x-dot-template">
-<li class="bo_container" data-id="[[=it.id]]">
+<li class="bo_container" data-id="[[=it.id]]" id="status-[[=it.id]]">
   <div class="single_bo">
     <div class="avatar"><img src="[[=it.user.profile_image_url]]"/></div>
     <div class="content">
@@ -43,7 +38,7 @@ title: Hello World!
 </script>
 
 <script id="template" type="text/x-dot-template">
-<li class="bo_container" data-id="[[=it.id]]">
+<li class="bo_container" data-id="[[=it.id]]" id="status-[[=it.id]]">
   <div class="single_bo">
     <div class="avatar"><img src="[[=it.user.profile_image_url]]"/></div>
     <div class="content">
@@ -61,15 +56,11 @@ title: Hello World!
 </script>
 
 <div class="page">
-  <div class="left">
-    <div class="container">
+    <div class="main">
       <ul class="bo_list">
       </ul>
     </div>
-  </div>
-  
-  <div class="left">
-    <div class="sub_container" id="sub_container">
+    <div class="side" id="side">
       <div class="inner">
         <div id="block1" class="anim_block">
           <div class="side_content" id="side_content_1">
@@ -83,6 +74,4 @@ title: Hello World!
         </div>
       </div>
     </div>
-  </div>
-  <div style="clear:both"></div>
 </div>

@@ -64,10 +64,13 @@ $(function() {
     return $(".bo_list").prepend(render_status(s));
   });
   _last = null;
-  $(".container").attr("style", "height: " + (window.innerHeight - 36) + "px");
-  $(document).on("click", ".bo_container", function() {
+  $(".main, .side").attr("style", "height: " + (window.innerHeight - 36) + "px");
+  $(document).on("click", ".main .bo_container", function() {
     var id;
-    if (_last !== null) _last.removeClass("selected");
+    if (_last !== null) {
+      if (_last.attr("id") === $(this).attr("id")) return;
+      _last.removeClass("selected");
+    }
     $(this).addClass("selected");
     _last = $(this);
     id = $(this).attr("data-id");
@@ -100,7 +103,7 @@ $(function() {
     return false;
   });
   $(window).resize(function() {
-    return $(".container, .sub_container").attr("style", "height: " + (window.innerHeight - 36) + "px");
+    return $(".main, .side").attr("style", "height: " + (window.innerHeight - 36) + "px");
   });
   $("#btn_fetch").click(function() {
     var url;

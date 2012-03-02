@@ -42,11 +42,14 @@ $ ->
   
   _last = null
   
-  $(".container").attr("style", "height: " + (window.innerHeight - 36) + "px")
+  $(".main, .side").attr("style", "height: " + (window.innerHeight - 36) + "px")
 
-  $(document).on "click", ".bo_container", ->
+  $(document).on "click", ".main .bo_container", ->
     if _last != null
+      if _last.attr("id") == $(this).attr("id")
+        return
       _last.removeClass("selected")
+    
     
     $(this).addClass("selected");
     _last = $(this)
@@ -71,7 +74,7 @@ $ ->
     return false
   
   $(window).resize ->
-    $(".container, .sub_container").attr("style", "height: " + (window.innerHeight - 36) + "px")
+    $(".main, .side").attr("style", "height: " + (window.innerHeight - 36) + "px")
   
   $("#btn_fetch").click ->
     url = ""
