@@ -14,6 +14,10 @@ doT.templateSettings = {
   append:      true
 };
 
+String.prototype.autoAt = ->
+  pattern = /(@([^ :]+))/ig
+  this.replace(pattern, "<a href='http://www.weibo.com/n/$2'>$1</a>")
+
 check = (w) ->
   url = w.url()
   pattern = /#access_token=([^&]+)/
@@ -24,16 +28,16 @@ check = (w) ->
     url = "https://api.weibo.com/2/statuses/home_timeline.json?access_token=#{token}"
     fn = doT.template($("#template").text())
     $.getJSON url, (data) -> 
-      console.log(data["statuses"].length)
       for s in data["statuses"].reverse()
-        s.text = s.text.autoLink()
+        s.text = s.text.autoLink().autoAt()
         text = fn(s)
         $(".bo_list").prepend(text)
+
 
 render_status = (s, template="#template") ->
   fn = doT.template($(template).text())
   fullFn = doT.template($(template).text())
-  s.text = s.text.autoLink()
+  s.text = s.text.autoLink().autoAt()
   return fn(s)
   
 $ ->

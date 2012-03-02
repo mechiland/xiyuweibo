@@ -21,6 +21,12 @@ doT.templateSettings = {
   append: true
 };
 
+String.prototype.autoAt = function() {
+  var pattern;
+  pattern = /(@([^ :]+))/ig;
+  return this.replace(pattern, "<a href='http://www.weibo.com/n/$2'>$1</a>");
+};
+
 check = function(w) {
   var fn, pattern, token, url;
   url = w.url();
@@ -35,12 +41,11 @@ check = function(w) {
     fn = doT.template($("#template").text());
     return $.getJSON(url, function(data) {
       var s, text, _i, _len, _ref, _results;
-      console.log(data["statuses"].length);
       _ref = data["statuses"].reverse();
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         s = _ref[_i];
-        s.text = s.text.autoLink();
+        s.text = s.text.autoLink().autoAt();
         text = fn(s);
         _results.push($(".bo_list").prepend(text));
       }
@@ -54,7 +59,7 @@ render_status = function(s, template) {
   if (template == null) template = "#template";
   fn = doT.template($(template).text());
   fullFn = doT.template($(template).text());
-  s.text = s.text.autoLink();
+  s.text = s.text.autoLink().autoAt();
   return fn(s);
 };
 

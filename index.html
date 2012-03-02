@@ -4,10 +4,10 @@ title: Hello World!
 ---
 
 <nav>
-  <img src="assets/images/Chat.png" />
-  <img src="assets/images/Chatting.png" />
+  <img src="assets/images/01-refresh.png" />
+  <img src="assets/images/111-user.png" />
   <img src="assets/images/Mail.png" />
-  <img src="assets/images/Magnifier.png" />
+  <img src="assets/images/Conversation.png" />
   <img src="assets/images/Camera.png" />
   <img id="btn_fetch" src="assets/images/Repeat.png" />
   <img id="btn_login" src="assets/images/Star.png" />
@@ -25,7 +25,7 @@ title: Hello World!
       [[ } ]]
       [[ if (it.retweeted_status) { ]]
         <div class="rt_content">
-          <span class="rt_user">[[=it.retweeted_status.user.name]]：</span><span class="rt_text">[[=it.retweeted_status.text]]</span>
+          <span class="rt_user">[[=it.retweeted_status.user.name]]：</span><span class="rt_text">[[=it.retweeted_status.text.autoLink().autoAt()]]</span>
           [[ if (it.retweeted_status.bmiddle_pic) {]]
           <div class="tweet_image"><img src="[[=it.retweeted_status.bmiddle_pic]]" /></div>
           [[ } ]]
@@ -42,11 +42,17 @@ title: Hello World!
   <div class="single_bo">
     <div class="avatar"><img src="[[=it.user.profile_image_url]]"/></div>
     <div class="content">
-      <div class="user">[[=it.user.name]]<div class="action">评论 转发 收藏</div></div>
+      <div class="user">[[=it.user.name]]
+        <div class="action">
+          <a href="#">评论</a>(200)
+          <a href="#">转发</a>(100)
+          <a href="#">收藏</a>
+        </div>
+      </div>
       <span class="text">[[=it.text]]</span>
       [[ if (it.retweeted_status) { ]]
         <div class="rt_content">
-          <span class="rt_user">[[=it.retweeted_status.user.name]]：</span><span class="rt_text">[[=it.retweeted_status.text]]</span>
+          <span class="rt_user">[[=it.retweeted_status.user.name]]：</span><span class="rt_text">[[=it.retweeted_status.text.autoLink().autoAt()]]</span>
         </div>
       [[ } ]]
     </div>

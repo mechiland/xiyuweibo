@@ -138,6 +138,10 @@ ul.bo_list li {
   padding: 10px 15px 10px 10px;
 }
 
+.bo_container:hover .comment_stats, .bo_container:hover .action {
+  visibility: visible;
+}
+
 .selected {
   box-shadow: 1px 1px 2px #ddd inset;
   background: -webkit-linear-gradient(top, #f0f0f0, #f6f6f6);
@@ -150,4 +154,13 @@ ul.bo_list li {
 .action {
   float: right;
   font-weight: normal;
+  visibility: hidden;
+  color: #666;
 }
+
+a {
+  color: #6a7f8b;
+  text-decoration: none;
+}
+
+
