@@ -1,5 +1,11 @@
 delay = (ms, func) -> setTimeout func, ms
 repeat = (ms, func) -> setInterval func, ms
+String.prototype.autoAt = ->
+  pattern = /(@([^ :]+))/ig
+  this.replace(pattern, "<a href='http://www.weibo.com/n/$2'>$1</a>")
+
+Date.prototype.human = ->
+  this.format("m月d日 hh:mm")
 
 side_width = "400px";
 
@@ -14,9 +20,6 @@ doT.templateSettings = {
   append:      true
 };
 
-String.prototype.autoAt = ->
-  pattern = /(@([^ :]+))/ig
-  this.replace(pattern, "<a href='http://www.weibo.com/n/$2'>$1</a>")
 
 check = (w) ->
   url = w.url()

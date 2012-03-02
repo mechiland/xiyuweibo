@@ -8,6 +8,16 @@ repeat = function(ms, func) {
   return setInterval(func, ms);
 };
 
+String.prototype.autoAt = function() {
+  var pattern;
+  pattern = /(@([^ :]+))/ig;
+  return this.replace(pattern, "<a href='http://www.weibo.com/n/$2'>$1</a>");
+};
+
+Date.prototype.human = function() {
+  return this.format("m月d日 hh:mm");
+};
+
 side_width = "400px";
 
 doT.templateSettings = {
@@ -19,12 +29,6 @@ doT.templateSettings = {
   varname: 'it',
   strip: true,
   append: true
-};
-
-String.prototype.autoAt = function() {
-  var pattern;
-  pattern = /(@([^ :]+))/ig;
-  return this.replace(pattern, "<a href='http://www.weibo.com/n/$2'>$1</a>");
 };
 
 check = function(w) {

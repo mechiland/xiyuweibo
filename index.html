@@ -20,8 +20,10 @@ title: Hello World!
     <div class="content">
       <div class="user">[[=it.user.name]]
         <div class="action">
-          评论：([[=it.comments_count]])
+          <span class="stat">评论：([[=it.comments_count]])
           转发：([[=it.reposts_count]])
+          </span>
+          <span class="time">[[=new Date(it.created_at).human()]]</span>
         </div>
       </div>
       <span class="text">[[=it.text]]</span>
@@ -51,8 +53,11 @@ title: Hello World!
     <div class="content">
       <div class="user">[[=it.user.name]]
         <div class="action">
+          <span class="stat">
           <a href="#">评论</a>([[=it.comments_count]])
           <a href="#">转发</a>([[=it.reposts_count]])
+          </span>
+          <span class="time">[[=new Date(it.created_at).human()]]</span>
         </div>
       </div>
       <span class="text">[[=it.text]]</span>

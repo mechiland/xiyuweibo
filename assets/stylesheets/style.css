@@ -130,6 +130,7 @@ ul.bo_list li {
 .single_bo .user {
   display: block;
   font-weight: bold;
+  margin-bottom: 6px;
 }
 
 .bo_container, .side_bo_container {
@@ -138,12 +139,16 @@ ul.bo_list li {
   padding: 10px 15px 10px 10px;
 }
 
-.bo_container .action {
-  visibility: hidden;
+.bo_container .stat {
+  display:none;
 }
 
-.bo_container:hover .comment_stats, .bo_container:hover .action {
-  visibility: visible;
+.bo_container:hover .comment_stats, .bo_container:hover .stat {
+  display: inline;
+}
+
+.bo_container:hover .time {
+  display: none;;
 }
 
 .selected {
@@ -159,6 +164,10 @@ ul.bo_list li {
   float: right;
   font-weight: normal;
   color: #666;
+}
+
+.time {
+  visibility: visible;
 }
 
 a {
