@@ -166,4 +166,8 @@ a {
   text-decoration: none;
 }
 
-
+.comment_stat {
+  color: #666;
+  font-size: 11px;
+  text-align: right;
+}
