@@ -132,10 +132,14 @@ ul.bo_list li {
   font-weight: bold;
 }
 
-.bo_container {
+.bo_container, .side_bo_container {
   background: -webkit-linear-gradient(top, #fff, #f4f4f4);
   min-height: 50px;
   padding: 10px 15px 10px 10px;
+}
+
+.bo_container .action {
+  visibility: hidden;
 }
 
 .bo_container:hover .comment_stats, .bo_container:hover .action {
@@ -154,7 +158,6 @@ ul.bo_list li {
 .action {
   float: right;
   font-weight: normal;
-  visibility: hidden;
   color: #666;
 }
 

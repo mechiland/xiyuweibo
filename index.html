@@ -14,11 +14,16 @@ title: Hello World!
 </nav>
 
 <script id="template_full" type="text/x-dot-template">
-<li class="bo_container" data-id="[[=it.id]]" id="status-[[=it.id]]">
+<div class="side_bo_container" data-id="[[=it.id]]" id="status-[[=it.id]]">
   <div class="single_bo">
     <div class="avatar"><img src="[[=it.user.profile_image_url]]"/></div>
     <div class="content">
-      <div class="user">[[=it.user.name]]<div class="action">评论 转发 收藏</div></div>
+      <div class="user">[[=it.user.name]]
+        <div class="action">
+          评论：([[=it.comments_count]])
+          转发：([[=it.reposts_count]])
+        </div>
+      </div>
       <span class="text">[[=it.text]]</span>
       [[ if (it.bmiddle_pic) {]]
       <div class="tweet_image"><img src="[[=it.bmiddle_pic]]" /></div>
@@ -34,7 +39,7 @@ title: Hello World!
     </div>
     <div style="clear:both"></div>
   </div>
-</li>
+</div>
 </script>
 
 <script id="template" type="text/x-dot-template">
@@ -44,9 +49,8 @@ title: Hello World!
     <div class="content">
       <div class="user">[[=it.user.name]]
         <div class="action">
-          <a href="#">评论</a>(200)
-          <a href="#">转发</a>(100)
-          <a href="#">收藏</a>
+          <a href="#">评论</a>([[=it.comments_count]])
+          <a href="#">转发</a>([[=it.reposts_count]])
         </div>
       </div>
       <span class="text">[[=it.text]]</span>
