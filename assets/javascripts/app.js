@@ -1,4 +1,4 @@
-var check, delay, render_status, repeat;
+var check, delay, render_status, repeat, side_width;
 
 delay = function(ms, func) {
   return setTimeout(func, ms);
@@ -7,6 +7,8 @@ delay = function(ms, func) {
 repeat = function(ms, func) {
   return setInterval(func, ms);
 };
+
+side_width = "400px";
 
 doT.templateSettings = {
   evaluate: /\[\[([\s\S]+?)\]\]/g,
@@ -76,20 +78,20 @@ $(function() {
     id = $(this).attr("data-id");
     $(".inner .anim_block").each(function() {
       var s;
-      if ($(this).css("left") === "-400px") {
+      if ($(this).css("left") === ("-" + side_width)) {
         s = statuses.get(id);
         s = s.toJSON();
         return $(this).html(render_status(s, "#template_full"));
       }
     });
     return $('.inner').animate({
-      "left": "+400px"
+      "left": "+" + side_width
     }, "slow", function() {
       return $(".inner .anim_block").each(function(el) {
         var new_width, old;
         old = $(this).css("left");
         if (old === "0px") {
-          new_width = "-400px";
+          new_width = "-" + side_width;
         } else {
           new_width = "0px";
         }

@@ -1,6 +1,8 @@
 delay = (ms, func) -> setTimeout func, ms
 repeat = (ms, func) -> setInterval func, ms
 
+side_width = "400px";
+
 doT.templateSettings = {
   evaluate:    /\[\[([\s\S]+?)\]\]/g,
   interpolate: /\[\[=([\s\S]+?)\]\]/g,
@@ -50,22 +52,21 @@ $ ->
         return
       _last.removeClass("selected")
     
-    
     $(this).addClass("selected");
     _last = $(this)
     
     id = $(this).attr("data-id")
     
     $(".inner .anim_block").each ->
-      if $(this).css("left") == "-400px"
+      if $(this).css("left") == "-#{side_width}"
         s = statuses.get(id)
         s = s.toJSON()
         $(this).html(render_status(s, "#template_full"))        
     
-    $('.inner').animate {"left": "+400px"}, "slow", -> 
+    $('.inner').animate {"left": "+#{side_width}"}, "slow", -> 
       $(".inner .anim_block").each (el) ->
         old = $(this).css("left")
-        if old == "0px" then new_width = "-400px" else new_width = "0px"
+        if old == "0px" then new_width = "-#{side_width}" else new_width = "0px"
         $(this).css("left", new_width)
         $(".inner").css("left", "0px")
   
