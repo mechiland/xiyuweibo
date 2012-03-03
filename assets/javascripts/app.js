@@ -1,4 +1,4 @@
-var check, delay, render_status, repeat, side_width;
+var check, delay, render_status, repeat, side_width, statuses;
 
 delay = function(ms, func) {
   return setTimeout(func, ms);
@@ -31,8 +31,10 @@ doT.templateSettings = {
   append: true
 };
 
+statuses = new Statuses;
+
 check = function(w) {
-  var fn, pattern, token, url;
+  var pattern, token, url;
   url = w.url();
   pattern = /#access_token=([^&]+)/;
   if (!pattern.test(w.url())) {
@@ -41,20 +43,7 @@ check = function(w) {
     });
   } else {
     token = w.url().match(pattern)[1];
-    url = "https://api.weibo.com/2/statuses/home_timeline.json?access_token=" + token;
-    fn = doT.template($("#template").text());
-    return $.getJSON(url, function(data) {
-      var s, text, _i, _len, _ref, _results;
-      _ref = data["statuses"].reverse();
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        s = _ref[_i];
-        s.text = s.text.autoLink().autoAt();
-        text = fn(s);
-        _results.push($(".bo_list").prepend(text));
-      }
-      return _results;
-    });
+    return statuses.init(token);
   }
 };
 
@@ -68,8 +57,7 @@ render_status = function(s, template) {
 };
 
 $(function() {
-  var statuses, _last;
-  statuses = new Statuses;
+  var _last;
   statuses.on("add", function(s) {
     s = s.toJSON();
     return $(".bo_list").prepend(render_status(s));
@@ -95,7 +83,7 @@ $(function() {
     });
     return $('.inner').animate({
       "left": "+" + side_width
-    }, "slow", function() {
+    }, "fast", function() {
       return $(".inner .anim_block").each(function(el) {
         var new_width, old;
         old = $(this).css("left");
@@ -117,17 +105,12 @@ $(function() {
     return $(".main, .side").attr("style", "height: " + (window.innerHeight - 36) + "px");
   });
   $("#btn_fetch").click(function() {
-    var url;
-    url = "";
-    if (typeof magcap !== 'undefined') url = "public/";
-    return $.getJSON("" + url + "home_timeline.json", function(data) {
-      return statuses.add(data["statuses"].reverse());
-    });
+    return statuses.update_latest();
   });
   return $("#btn_login").click(function() {
     var l;
     l = macgap.window.open({
-      url: "auth_sina.html",
+      url: "public/auth_sina.html",
       width: 640,
       height: 480
     });

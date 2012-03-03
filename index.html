@@ -20,8 +20,8 @@ title: Hello World!
     <div class="content">
       <div class="user">[[=it.user.name]]
         <div class="action">
-          <span class="stat">评论：([[=it.comments_count]])
-          转发：([[=it.reposts_count]])
+          <span class="stat">评论:([[=it.comments_count]])
+          转发:([[=it.reposts_count]])
           </span>
           <span class="time">[[=new Date(it.created_at).human()]]</span>
         </div>
@@ -37,8 +37,8 @@ title: Hello World!
           <div class="tweet_image"><img src="[[=it.retweeted_status.bmiddle_pic]]" /></div>
           [[ } ]]
         </div>
-        <div class="comment_stat">原文评论：[[=it.retweeted_status.comments_count]] 
-             转发：[[=it.retweeted_status.reposts_count]]</div>
+        <div class="comment_stat">原文评论:[[=it.retweeted_status.comments_count]] 
+             转发:[[=it.retweeted_status.reposts_count]]</div>
       [[ } ]]      
     </div>
     <div style="clear:both"></div>
