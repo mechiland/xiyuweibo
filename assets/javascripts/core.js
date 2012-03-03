@@ -13,6 +13,7 @@ Statuses = Backbone.Collection.extend({
   init: function(token) {
     var _this = this;
     this.token = token;
+    console.log("get token: " + this.token);
     return $.getJSON(sina_api.home, {
       access_token: this.token
     }, function(data) {

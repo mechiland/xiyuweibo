@@ -8,6 +8,7 @@ Statuses = Backbone.Collection.extend({
   max_id: 0,
   init: (token) -> 
     @token = token
+    console.log("get token: #{@token}")
     $.getJSON sina_api.home, {access_token: @token}, (data) =>
       this.add(data["statuses"].reverse())
       @min_id = this.at(0).id

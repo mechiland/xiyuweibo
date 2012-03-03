@@ -81,11 +81,9 @@ $ ->
   
   $("#btn_fetch").click ->
     statuses.update_latest()
-    # url = "public/"
-    # if typeof(macgap) == "undefined" then url = ""
-    # $.getJSON "#{url}home_timeline.json", (data) -> 
-    #   statuses.add(data["statuses"].reverse())
   
   $("#btn_login").click ->
     l = macgap.window.open({url: "public/auth_sina.html", width: 640, height: 480})
     check(l);
+    
+    
