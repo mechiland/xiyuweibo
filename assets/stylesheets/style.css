@@ -36,7 +36,18 @@ nav img {
   margin-top: 5px;
   width: 24px;
   height: 24px;
+  border-radius: 10px;
 }
+
+nav img:hover {
+  box-shadow: 0 0 50px yellow;
+}
+
+nav img:active {
+  box-shadow: 0 0 20px yellow;
+}
+
+
 
 .main {
   margin-bottom: 36px;
