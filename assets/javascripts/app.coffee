@@ -8,7 +8,7 @@ String::autoAt = ->
 Date::human = ->
   this.format("m月d日 hh:mm")
 
-side_width = "400px";
+side_width = "400px"; 
 
 doT.templateSettings = {
   evaluate:    /\[\[([\s\S]+?)\]\]/g,
@@ -29,6 +29,7 @@ check = (w) ->
   if !pattern.test(w.url())
     delay(2000, -> check(w))
   else
+    w.close()
     token = w.url().match(pattern)[1]
     statuses.init(token)
 
