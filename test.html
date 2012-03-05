@@ -1,0 +1,36 @@
+---
+layout: default
+title: Another One!
+---
+
+<script type="text/javascript" charset="utf-8">
+$(function(){
+  var Workspace = Backbone.Router.extend({
+
+    routes: {
+      "":                     "index",
+      "help":                 "help",    // #help
+      "search/:query":        "search",  // #search/kiwis
+      "search/:query/p:page": "search"   // #search/kiwis/p7
+    },
+
+    index: function() {
+      console.log("home page");
+    },
+    
+    help: function() {
+      console.log("Hello!");
+    },
+
+    search: function(query, page) {
+      console.log("Hello! " + query + " on page " + page);
+    }
+
+  });
+  routes = new Workspace();
+})
+</script>
+
+<a href="#help">Help</a>
+<a href="#search/hello">Search hello</a>
+<a href="#search/something/p1">Search something on p1</a>

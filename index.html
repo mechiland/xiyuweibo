@@ -47,47 +47,38 @@ title: Hello World!
 </script>
 
 <script id="template" type="text/x-dot-template">
-<li class="bo_container" data-id="[[=it.id]]" id="status-[[=it.id]]">
-  <div class="single_bo">
-    <div class="avatar"><img src="[[=it.user.profile_image_url]]"/></div>
-    <div class="content">
-      <div class="user">[[=it.user.name]]
-        <div class="action">
-          <span class="stat">
-          <a href="#">评论</a>([[=it.comments_count]])
-          <a href="#">转发</a>([[=it.reposts_count]])
-          </span>
-          <span class="time">[[=new Date(it.created_at).human()]]</span>
-        </div>
+<div class="single_bo">
+  <div class="avatar"><img src="[[=it.user.profile_image_url]]"/></div>
+  <div class="content">
+    <div class="user">[[=it.user.name]]
+      <div class="action">
+        <span class="stat">
+        <a href="#">评论</a>([[=it.comments_count]])
+        <a href="#">转发</a>([[=it.reposts_count]])
+        </span>
+        <span class="time">[[=new Date(it.created_at).human()]]</span>
       </div>
-      <span class="text">[[=it.text]]</span>
-      [[ if (it.retweeted_status) { ]]
-        <div class="rt_content">
-          <span class="rt_user">[[=it.retweeted_status.user.name]]：</span><span class="rt_text">[[=it.retweeted_status.text.autoLink().autoAt()]]</span>
-        </div>
-      [[ } ]]
     </div>
-    <div style="clear:both"></div>
+    <span class="text">[[=it.text]]</span>
+    [[ if (it.retweeted_status) { ]]
+      <div class="rt_content">
+        <span class="rt_user">[[=it.retweeted_status.user.name]]：</span><span class="rt_text">[[=it.retweeted_status.text.autoLink().autoAt()]]</span>
+      </div>
+    [[ } ]]
   </div>
-</li>
+  <div style="clear:both"></div>
+</div>
 </script>
 
 <div class="page">
     <div class="main">
-      <ul class="bo_list">
+      <ul class="bo_list" id="tweets_list">
       </ul>
     </div>
     <div class="side" id="side">
-      <div class="inner">
-        <div id="block1" class="anim_block">
-          <div class="side_content" id="side_content_1">
-            
-          </div>
-        </div>
-        <div id="block2" class="anim_block">
-          <div class="side_content" id="side_content_2">
-            
-          </div>
+      <div class="inner" id="inner">
+        <div id="block1" class="anim_block"></div>
+        <div id="block2" class="anim_block"></div>
         </div>
       </div>
     </div>

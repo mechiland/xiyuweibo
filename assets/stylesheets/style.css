@@ -47,8 +47,6 @@ nav img:active {
   box-shadow: 0 0 20px yellow;
 }
 
-
-
 .main {
   margin-bottom: 36px;
   overflow: auto;
@@ -64,7 +62,6 @@ nav img:active {
   position: absolute;
   margin-bottom: 36px;
   overflow-x: hidden;
-  width: 400px;
   height: 100%;
   border-right: 1px solid #ccc; 
   z-index: 1;
@@ -73,7 +70,7 @@ nav img:active {
 }
 
 .inner {
-  width:800px;
+  width:1000px;
   background-color: #fff;
   position: relative;
   height: 100%;
@@ -81,14 +78,14 @@ nav img:active {
 }
 
 .anim_block {
-  width: 400px;
+  width: 500px;
   height: 100%;
   position: absolute;
   background-color: #fff;
 }
 
 #block1 {
-  left: -400px;
+  left: -500px;
 }
 
 #block2 {
