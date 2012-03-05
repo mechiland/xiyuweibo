@@ -55,14 +55,15 @@ $(function() {
     tagName: 'li',
     className: 'bo_container',
     events: {
-      "click": "show"
+      "click .avatar": "show_user",
+      "click .content": "show_detail"
     },
     template: doT.template($("#template").text()),
     render: function() {
       $(this.el).html(this.template(this.model.toJSON()));
       return this;
     },
-    show: function() {
+    show_detail: function() {
       if (_last !== null) {
         if (_last === this) return;
         $(_last.el).removeClass("selected");
@@ -72,6 +73,9 @@ $(function() {
       return Routes.navigate("tweets/" + this.model.id, {
         trigger: true
       });
+    },
+    show_user: function() {
+      return console.log("Showing user");
     }
   });
   TweetDetailView = Backbone.View.extend({

@@ -42,15 +42,16 @@ $ ->
     tagName: 'li'
     className: 'bo_container'
     events: 
-      "click": "show"
-    
+      "click .avatar": "show_user"
+      "click .content": "show_detail"
+      
     template: doT.template($("#template").text())
     
     render: ->
       $(this.el).html(this.template(this.model.toJSON()))
       return this
     
-    show: -> 
+    show_detail: -> 
       if _last != null 
         if _last == this then return
         $(_last.el).removeClass("selected")
@@ -58,6 +59,9 @@ $ ->
       $(this.el).addClass("selected")
       _last = this
       Routes.navigate("tweets/#{this.model.id}", {trigger: true})
+    
+    show_user: ->
+      console.log("Showing user");
   }) 
   
   TweetDetailView = Backbone.View.extend({
