@@ -14,7 +14,7 @@ title: Hello World!
 </nav>
 
 <script id="template_full" type="text/x-dot-template">
-<div class="side_bo_container" data-id="[[=it.id]]" id="status-[[=it.id]]">
+<div class="side_container" data-id="[[=it.id]]" id="status-[[=it.id]]">
   <div class="single_bo">
     <div class="avatar"><img src="[[=it.user.profile_image_url]]"/></div>
     <div class="content">
@@ -46,6 +46,26 @@ title: Hello World!
 </div>
 </script>
 
+<script id="user_detail_template" type="text/x-dot-template">
+<div class="use_detail side_container" data-id="[[=it.id]]" id="user-detail-[[=it.id]]">
+  <div class="single_bo">
+    <div class="avatar"><img src="[[=it.profile_image_url]]"/></div>
+    <div class="content">
+      <div class="user">[[=it.name]]</div>
+      <div>[[=it.description]]</div>
+      <div>[[=it.location]]</div>
+      <div>关注: [[=it.friends_count]] 粉丝: [[=it.followers_count]] 微博: [[=it.statuses_count]]</div>
+    </div>
+    <div style="clear:both"></div>
+  </div>
+</div>
+
+<div class="recent_statuses">
+  最近发表的微博
+</div>
+
+</script>
+
 <script id="template" type="text/x-dot-template">
 <div class="single_bo">
   <div class="avatar"><img src="[[=it.user.profile_image_url]]"/></div>
@@ -62,13 +82,14 @@ title: Hello World!
     <span class="text">[[=it.text]]</span>
     [[ if (it.retweeted_status) { ]]
       <div class="rt_content">
-        <span class="rt_user">[[=it.retweeted_status.user.name]]：</span><span class="rt_text">[[=it.retweeted_status.text.autoLink().autoAt()]]</span>
+        <span class="rt_user"><a href="#users/[[=it.retweeted_status.user.id]]" class="user_link">[[=it.retweeted_status.user.name]]</a>：</span><span class="rt_text">[[=it.retweeted_status.text.autoLink().autoAt()]]</span>
       </div>
     [[ } ]]
   </div>
   <div style="clear:both"></div>
 </div>
 </script>
+
 
 <div class="page">
     <div class="main">

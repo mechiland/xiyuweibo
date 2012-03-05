@@ -141,7 +141,11 @@ ul.bo_list li {
   margin-bottom: 6px;
 }
 
-.bo_container, .side_bo_container {
+.use_detail {
+  background: -webkit-linear-gradient(top, #f1f1f1, #e0e0e0);
+}
+
+.bo_container, .side_container {
   background: -webkit-linear-gradient(top, #fff, #f4f4f4);
   min-height: 50px;
   padding: 10px 15px 10px 10px;

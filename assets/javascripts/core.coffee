@@ -3,12 +3,37 @@ sina_api = {
 }
 
 $ ->
-  window.Tweet = Backbone.Model.extend({})
-
+  
+  User = Backbone.Model.extend({})
+  UserList = Backbone.Collection.extend({
+    model: User
+  })
+  
+  Users = new UserList
+  
+  Tweet = Backbone.Model.extend({})
   window.TweetList = Backbone.Collection.extend({
     model: Tweet,
     min_id: 0,
     max_id: 0,
+    
+    initialize: ->
+      this.bind("add", this.updateUser, this)
+    
+    updateUser: (s)->
+      json = s.toJSON()
+      user1 = json["user"]
+      if json["retweeted_status"] then user2 = json["retweeted_status"]["user"]
+      this._updateUser(user1)
+      if user2 then this._updateUser(user2)
+    
+    _updateUser: (json) ->
+      u = Users.get(json["id"])
+      if u
+        u.set json # TODO: skip the id
+      else
+        Users.add(new User(json))
+    
     init: (token) -> 
       @token = token
       console.log("get token: #{@token}")
@@ -42,8 +67,10 @@ $ ->
     tagName: 'li'
     className: 'bo_container'
     events: 
-      "click .avatar": "show_user"
+      "click .avatar": "show_user",
+      "click .user_link": "show_user_link",
       "click .content": "show_detail"
+
       
     template: doT.template($("#template").text())
     
@@ -60,8 +87,12 @@ $ ->
       _last = this
       Routes.navigate("tweets/#{this.model.id}", {trigger: true})
     
+    show_user_link: (el)->
+      location.href=$(el.target).attr("href")
+      return false;
+    
     show_user: ->
-      console.log("Showing user");
+      Routes.navigate("users/#{this.model.get("user").id}", {trigger: true})
   }) 
   
   TweetDetailView = Backbone.View.extend({
@@ -77,14 +108,23 @@ $ ->
         if $(this).css("left") != "0px"
           $(this).html(_this.template(_this.model.toJSON()))
       
+      this._animate()
+          
+    _animate: ->
+      _this = this
       $(this.el).animate {"left": "+#{this.side_width}"}, "fast", -> 
         $(_this.el).find(".anim_block").each (el) ->
           old = $(this).css("left")
           if old == "0px" then new_width = "-#{_this.side_width}" else new_width = "0px"
           $(this).css("left", new_width)
           $(_this.el).css("left", "0px")
+      
   })
-
+  
+  UserDetailView = TweetDetailView.extend({
+    template: doT.template($("#user_detail_template").text())
+  })
+  
   TweetsView = Backbone.View.extend({
     el: $("#tweets_list")
     initialize: -> Tweets.bind('add', this.addOne, this)
@@ -94,6 +134,9 @@ $ ->
     showTweet: (id) ->
       view = new TweetDetailView({model: Tweets.get(parseInt(id))})
       view.render()
+      
+    showUser: (id) ->
+      new UserDetailView({model: Users.get(parseInt(id))}).render()
   })
 
   ListView = new TweetsView
@@ -113,7 +156,8 @@ $ ->
         ListView.showTweet(id)
   
     show_user: (id) ->
-      console.log("show user #{id}") #TODO
+      if Users.length > 0
+        ListView.showUser(id)
   })
 
   Routes = new Workspace

@@ -5,12 +5,37 @@ sina_api = {
 };
 
 $(function() {
-  var ListView, Routes, TweetDetailView, TweetView, TweetsView, Workspace, _last;
-  window.Tweet = Backbone.Model.extend({});
+  var ListView, Routes, Tweet, TweetDetailView, TweetView, TweetsView, User, UserDetailView, UserList, Users, Workspace, _last;
+  User = Backbone.Model.extend({});
+  UserList = Backbone.Collection.extend({
+    model: User
+  });
+  Users = new UserList;
+  Tweet = Backbone.Model.extend({});
   window.TweetList = Backbone.Collection.extend({
     model: Tweet,
     min_id: 0,
     max_id: 0,
+    initialize: function() {
+      return this.bind("add", this.updateUser, this);
+    },
+    updateUser: function(s) {
+      var json, user1, user2;
+      json = s.toJSON();
+      user1 = json["user"];
+      if (json["retweeted_status"]) user2 = json["retweeted_status"]["user"];
+      this._updateUser(user1);
+      if (user2) return this._updateUser(user2);
+    },
+    _updateUser: function(json) {
+      var u;
+      u = Users.get(json["id"]);
+      if (u) {
+        return u.set(json);
+      } else {
+        return Users.add(new User(json));
+      }
+    },
     init: function(token) {
       var _this = this;
       this.token = token;
@@ -56,6 +81,7 @@ $(function() {
     className: 'bo_container',
     events: {
       "click .avatar": "show_user",
+      "click .user_link": "show_user_link",
       "click .content": "show_detail"
     },
     template: doT.template($("#template").text()),
@@ -74,8 +100,14 @@ $(function() {
         trigger: true
       });
     },
+    show_user_link: function(el) {
+      location.href = $(el.target).attr("href");
+      return false;
+    },
     show_user: function() {
-      return console.log("Showing user");
+      return Routes.navigate("users/" + (this.model.get("user").id), {
+        trigger: true
+      });
     }
   });
   TweetDetailView = Backbone.View.extend({
@@ -92,6 +124,11 @@ $(function() {
           return $(this).html(_this.template(_this.model.toJSON()));
         }
       });
+      return this._animate();
+    },
+    _animate: function() {
+      var _this;
+      _this = this;
       return $(this.el).animate({
         "left": "+" + this.side_width
       }, "fast", function() {
@@ -108,6 +145,9 @@ $(function() {
         });
       });
     }
+  });
+  UserDetailView = TweetDetailView.extend({
+    template: doT.template($("#user_detail_template").text())
   });
   TweetsView = Backbone.View.extend({
     el: $("#tweets_list"),
@@ -131,6 +171,11 @@ $(function() {
         model: Tweets.get(parseInt(id))
       });
       return view.render();
+    },
+    showUser: function(id) {
+      return new UserDetailView({
+        model: Users.get(parseInt(id))
+      }).render();
     }
   });
   ListView = new TweetsView;
@@ -147,7 +192,7 @@ $(function() {
       if (Tweets.length > 0) return ListView.showTweet(id);
     },
     show_user: function(id) {
-      return console.log("show user " + id);
+      if (Users.length > 0) return ListView.showUser(id);
     }
   });
   Routes = new Workspace;
