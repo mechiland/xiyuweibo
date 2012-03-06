@@ -1,3 +1,4 @@
+delay = (ms, func) -> setTimeout func, ms
 repeat = (ms, func) -> setInterval func, ms
 
 String::autoAt = ->
@@ -24,11 +25,10 @@ check = (w) ->
   url = w.url()
   pattern = /#access_token=([^&]+)/
   if !pattern.test(w.url())
-    _.delay(2000, -> check(w))
+    delay(2000, -> check(w))
   else
-    w.close()
     token = w.url().match(pattern)[1]
-    statuses.init(token)
+    Tokens.add({token: token})
 
 $ ->
   
@@ -44,15 +44,15 @@ $ ->
     $(".main, .side").attr("style", "height: " + (window.innerHeight - 36) + "px")
   
   $("#btn_fetch").click ->
-    Tweets.fetch_local()
-    Comments.fetch_local()
-    # statuses.update_latest()
+    # Tweets.fetch_local()
+    # Comments.fetch_local()
+    Tweets.update_latest()
   
   $("#nav_new_status").click -> 
     NewStatus.render()
   
-  # $("#btn_login").click ->
-  #     l = macgap.window.open({url: "public/auth_sina.html", width: 640, height: 480})
-  #     check(l);
-  #     
+  $("#btn_login").click ->
+    l = macgap.window.open({url: "public/auth_sina.html", width: 640, height: 480})
+    check(l);
+    
     

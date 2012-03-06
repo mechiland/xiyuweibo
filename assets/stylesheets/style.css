@@ -159,6 +159,10 @@ ul.bo_list li {
   padding: 10px 15px 10px 20px;
 }
 
+.side_container .single_bo {
+  margin-bottom: 10px;
+}
+
 .bo_container .stat {
   display:none;
 }

@@ -2,6 +2,17 @@ api_prefix = "https://api.weibo.com"
 
 $ ->
   
+  AccessToken = Backbone.Model.extend({
+    defaults: -> 
+      {created_at: new Date}
+  })
+
+  window.AccessTokenList = Backbone.Collection.extend({
+    model: AccessToken
+  })
+  
+  window.Tokens = new AccessTokenList
+  
   User = Backbone.Model.extend({})
   UserList = Backbone.Collection.extend({
     model: User
@@ -18,6 +29,10 @@ $ ->
     
     initialize: ->
       this.bind("add", this.updateUser, this)
+      Tokens.bind("add", this.updateToken, this)
+    
+    updateToken: (t)->
+      @token = t.get("token")
     
     updateUser: (s)->
       json = s.toJSON()
@@ -41,8 +56,8 @@ $ ->
         @min_id = this.at(0).id
         @max_id = this.at(this.length - 1).id
     update_latest: ->
-      console.log("Updating from server...> #{@max_id}")
-      $.getJSON sina_api.home, {access_token: @token, since_id: @max_id}, (data) =>
+      console.log("Updating from server...> #{@max_id} using token: #{@token}")
+      $.getJSON @api, {access_token: @token, since_id: @max_id}, (data) =>
         this.add(data["statuses"].reverse())
         @min_id = this.at(0).id
         @max_id = this.at(this.length - 1).id
@@ -66,11 +81,6 @@ $ ->
   
   window.Comments = new CommentList
 
-  window.AccessToken = Backbone.Model.extend({
-    defaults: -> 
-      {created_at: new Date}
-  })
-  
   _last = null
 
   TweetView = Backbone.View.extend({
@@ -78,12 +88,17 @@ $ ->
     className: 'bo_container'
     events: 
       "click .avatar": "show_user",
-      "click .user_link": "show_user_link",
-      "click .content": "show_detail",
+      "click .user_link": "show_user_link",      
       "click .reply": "reply",
-      "click .retweet": "retweet"
-
+      "click .retweet": "retweet",
+      "click": "show_detail"
     template: doT.template($("#template").text())
+    
+    initialize: ->
+      Tokens.bind("add", this.updateToken, this)
+    
+    updateToken: (t)->
+      @token = t.get("token")
     
     render: ->
       $(this.el).html(this.template(this.model.toJSON()))
@@ -103,13 +118,15 @@ $ ->
       return false;
     
     reply: ->
-      
+      return false
       
     retweet: ->
+      return false
       
     
     show_user: ->
       Routes.navigate("users/#{this.model.get("user").id}", {trigger: true})
+      return false
   }) 
   
   TweetDetailView = Backbone.View.extend({
@@ -167,6 +184,13 @@ $ ->
       "click .cancel" : "cancel",
       "click .submit" : "submit"
     }
+    
+    initialize: ->
+      Tokens.bind("add", this.updateToken, this)
+    
+    updateToken: (t)->
+      @token = t.get("token")
+    
     render: ->
       $(this.el).animate({"bottom": "200px"}, "fast")
       $(this.el).find("textarea").focus()
@@ -177,6 +201,8 @@ $ ->
       $("#overlay").css("z-index", "-1");
       
     submit: ->
+      api = "https://api.weibo.com/2/statuses/update.json"
+      $.post api, {access_token: @token, status: $("#new_status_content").val()}
       $(this.el).animate {"bottom": "1000px"}, "fast", ->
         $(this).css("bottom", "-130px")
         $("#overlay").css("z-index", "-1");

@@ -3,7 +3,18 @@ var api_prefix;
 api_prefix = "https://api.weibo.com";
 
 $(function() {
-  var Comment, CommentList, ListView, NewStatusView, Routes, Tweet, TweetDetailView, TweetList, TweetView, TweetsView, User, UserDetailView, UserList, Users, Workspace, _last;
+  var AccessToken, Comment, CommentList, ListView, NewStatusView, Routes, Tweet, TweetDetailView, TweetList, TweetView, TweetsView, User, UserDetailView, UserList, Users, Workspace, _last;
+  AccessToken = Backbone.Model.extend({
+    defaults: function() {
+      return {
+        created_at: new Date
+      };
+    }
+  });
+  window.AccessTokenList = Backbone.Collection.extend({
+    model: AccessToken
+  });
+  window.Tokens = new AccessTokenList;
   User = Backbone.Model.extend({});
   UserList = Backbone.Collection.extend({
     model: User
@@ -16,7 +27,11 @@ $(function() {
     max_id: 0,
     api: "" + api_prefix + "/2/statuses/home_timeline.json",
     initialize: function() {
-      return this.bind("add", this.updateUser, this);
+      this.bind("add", this.updateUser, this);
+      return Tokens.bind("add", this.updateToken, this);
+    },
+    updateToken: function(t) {
+      return this.token = t.get("token");
     },
     updateUser: function(s) {
       var json, user1, user2;
@@ -49,8 +64,8 @@ $(function() {
     },
     update_latest: function() {
       var _this = this;
-      console.log("Updating from server...> " + this.max_id);
-      return $.getJSON(sina_api.home, {
+      console.log("Updating from server...> " + this.max_id + " using token: " + this.token);
+      return $.getJSON(this.api, {
         access_token: this.token,
         since_id: this.max_id
       }, function(data) {
@@ -79,13 +94,6 @@ $(function() {
     }
   });
   window.Comments = new CommentList;
-  window.AccessToken = Backbone.Model.extend({
-    defaults: function() {
-      return {
-        created_at: new Date
-      };
-    }
-  });
   _last = null;
   TweetView = Backbone.View.extend({
     tagName: 'li',
@@ -93,11 +101,17 @@ $(function() {
     events: {
       "click .avatar": "show_user",
       "click .user_link": "show_user_link",
-      "click .content": "show_detail",
       "click .reply": "reply",
-      "click .retweet": "retweet"
+      "click .retweet": "retweet",
+      "click": "show_detail"
     },
     template: doT.template($("#template").text()),
+    initialize: function() {
+      return Tokens.bind("add", this.updateToken, this);
+    },
+    updateToken: function(t) {
+      return this.token = t.get("token");
+    },
     render: function() {
       $(this.el).html(this.template(this.model.toJSON()));
       return this;
@@ -117,12 +131,17 @@ $(function() {
       location.href = $(el.target).attr("href");
       return false;
     },
-    reply: function() {},
-    retweet: function() {},
+    reply: function() {
+      return false;
+    },
+    retweet: function() {
+      return false;
+    },
     show_user: function() {
-      return Routes.navigate("users/" + (this.model.get("user").id), {
+      Routes.navigate("users/" + (this.model.get("user").id), {
         trigger: true
       });
+      return false;
     }
   });
   TweetDetailView = Backbone.View.extend({
@@ -202,6 +221,12 @@ $(function() {
       "click .cancel": "cancel",
       "click .submit": "submit"
     },
+    initialize: function() {
+      return Tokens.bind("add", this.updateToken, this);
+    },
+    updateToken: function(t) {
+      return this.token = t.get("token");
+    },
     render: function() {
       $(this.el).animate({
         "bottom": "200px"
@@ -216,6 +241,12 @@ $(function() {
       return $("#overlay").css("z-index", "-1");
     },
     submit: function() {
+      var api;
+      api = "https://api.weibo.com/2/statuses/update.json";
+      $.post(api, {
+        access_token: this.token,
+        status: $("#new_status_content").val()
+      });
       return $(this.el).animate({
         "bottom": "1000px"
       }, "fast", function() {

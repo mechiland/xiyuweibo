@@ -79,8 +79,8 @@ title: Hello World!
           <img src="assets/images/picture.png" class="icon"/>
         [[}]]
         <span class="stat">
-        <a href="#">评论</a>([[=it.comments_count]])
-        <a href="#">转发</a>([[=it.reposts_count]])
+        <a href="#" class="reply">评论</a>([[=it.comments_count]])
+        <a href="#" class="retweet">转发</a>([[=it.reposts_count]])
         </span>
         <span class="time">[[=new Date(it.created_at).human()]]</span>
       </div>
@@ -111,29 +111,29 @@ title: Hello World!
 [[ } ]]
 </script>
 
-<div id="overlay">xx</div>
+<div id="overlay"></div>
 
 <div class="page">
     <div class="main">
       <ul class="bo_list" id="tweets_list">
-      </ul>
-      
+      </ul>      
     </div>
+    
     <div class="side" id="side">
       <div class="inner" id="inner">
         <div id="block1" class="anim_block"></div>
         <div id="block2" class="anim_block"></div>
-        </div>
       </div>
-    </div>  
+    </div> 
+     
     <div id="new_status">
       <div class="new_status_container">
         <img src="assets/images/user/1.jpeg" />
-        <textarea></textarea>
+        <textarea id="new_status_content"></textarea>
       </div>
       <div class="send_action">
         <input type="button" value="取消" class="btn btn-inverse cancel"/>
-        <input type="button" value="发表微博" class="btn btn-primary submit"/>
+        <input type="button" value="发表新微博" class="btn btn-primary submit"/>
       </div>
     </div>
 </div>

@@ -1,4 +1,8 @@
-var check, repeat, side_width;
+var check, delay, repeat, side_width;
+
+delay = function(ms, func) {
+  return setTimeout(func, ms);
+};
 
 repeat = function(ms, func) {
   return setInterval(func, ms);
@@ -32,13 +36,14 @@ check = function(w) {
   url = w.url();
   pattern = /#access_token=([^&]+)/;
   if (!pattern.test(w.url())) {
-    return _.delay(2000, function() {
+    return delay(2000, function() {
       return check(w);
     });
   } else {
-    w.close();
     token = w.url().match(pattern)[1];
-    return statuses.init(token);
+    return Tokens.add({
+      token: token
+    });
   }
 };
 
@@ -54,10 +59,18 @@ $(function() {
     return $(".main, .side").attr("style", "height: " + (window.innerHeight - 36) + "px");
   });
   $("#btn_fetch").click(function() {
-    Tweets.fetch_local();
-    return Comments.fetch_local();
+    return Tweets.update_latest();
   });
-  return $("#nav_new_status").click(function() {
+  $("#nav_new_status").click(function() {
     return NewStatus.render();
+  });
+  return $("#btn_login").click(function() {
+    var l;
+    l = macgap.window.open({
+      url: "public/auth_sina.html",
+      width: 640,
+      height: 480
+    });
+    return check(l);
   });
 });
