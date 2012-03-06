@@ -61,10 +61,10 @@ $ ->
     api: "#{api_prefix}/2/comments/show.json",
     fetch_local: ->
       $.getJSON "status_comments.json", (data) =>
-        this.add(data["statuses"].reverse())
+        this.add(data["comments"].reverse())
   })
   
-  Comments = new CommentList
+  window.Comments = new CommentList
 
   window.AccessToken = Backbone.Model.extend({
     defaults: -> 
@@ -109,6 +109,7 @@ $ ->
     el: $("#inner")
     side_width: "500px"
     template: doT.template($("#template_full").text())
+    comment_template: doT.template($("#comments_template").text())
     
     render: ->
       _this = this
@@ -117,6 +118,8 @@ $ ->
         $(this).css("width", _this.side_width);
         if $(this).css("left") != "0px"
           $(this).html(_this.template(_this.model.toJSON()))
+          # comments = Comments.select (c) -> c.status.id == _this.model.id
+          $(this).find(".recent_comments").html(_this.comment_template(Comments.toJSON()))
       
       this._animate()
           

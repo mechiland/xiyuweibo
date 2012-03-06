@@ -54,6 +54,7 @@ $(function() {
     return $(".main, .side").attr("style", "height: " + (window.innerHeight - 36) + "px");
   });
   return $("#btn_fetch").click(function() {
-    return Tweets.fetch_local();
+    Tweets.fetch_local();
+    return Comments.fetch_local();
   });
 });

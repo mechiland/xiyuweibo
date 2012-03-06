@@ -1,21 +1,20 @@
-var sina_api;
+var api_prefix;
 
-sina_api = {
-  home: "https://api.weibo.com/2/statuses/home_timeline.json"
-};
+api_prefix = "https://api.weibo.com";
 
 $(function() {
-  var ListView, Routes, Tweet, TweetDetailView, TweetView, TweetsView, User, UserDetailView, UserList, Users, Workspace, _last;
+  var Comment, CommentList, ListView, Routes, Tweet, TweetDetailView, TweetList, TweetView, TweetsView, User, UserDetailView, UserList, Users, Workspace, _last;
   User = Backbone.Model.extend({});
   UserList = Backbone.Collection.extend({
     model: User
   });
   Users = new UserList;
   Tweet = Backbone.Model.extend({});
-  window.TweetList = Backbone.Collection.extend({
+  TweetList = Backbone.Collection.extend({
     model: Tweet,
     min_id: 0,
     max_id: 0,
+    api: "" + api_prefix + "/2/statuses/home_timeline.json",
     initialize: function() {
       return this.bind("add", this.updateUser, this);
     },
@@ -40,7 +39,7 @@ $(function() {
       var _this = this;
       this.token = token;
       console.log("get token: " + this.token);
-      return $.getJSON(sina_api.home, {
+      return $.getJSON(this.api, {
         access_token: this.token
       }, function(data) {
         _this.add(data["statuses"].reverse());
@@ -68,6 +67,18 @@ $(function() {
     }
   });
   window.Tweets = new TweetList;
+  Comment = Backbone.Model.extend({});
+  CommentList = Backbone.Collection.extend({
+    model: Comment,
+    api: "" + api_prefix + "/2/comments/show.json",
+    fetch_local: function() {
+      var _this = this;
+      return $.getJSON("status_comments.json", function(data) {
+        return _this.add(data["comments"].reverse());
+      });
+    }
+  });
+  window.Comments = new CommentList;
   window.AccessToken = Backbone.Model.extend({
     defaults: function() {
       return {
@@ -114,6 +125,7 @@ $(function() {
     el: $("#inner"),
     side_width: "500px",
     template: doT.template($("#template_full").text()),
+    comment_template: doT.template($("#comments_template").text()),
     render: function() {
       var _this;
       _this = this;
@@ -121,7 +133,8 @@ $(function() {
       $(this.el).find(".anim_block").each(function() {
         $(this).css("width", _this.side_width);
         if ($(this).css("left") !== "0px") {
-          return $(this).html(_this.template(_this.model.toJSON()));
+          $(this).html(_this.template(_this.model.toJSON()));
+          return $(this).find(".recent_comments").html(_this.comment_template(Comments.toJSON()));
         }
       });
       return this._animate();

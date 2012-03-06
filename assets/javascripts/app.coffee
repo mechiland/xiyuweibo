@@ -45,6 +45,7 @@ $ ->
   
   $("#btn_fetch").click ->
     Tweets.fetch_local()
+    Comments.fetch_local()
     # statuses.update_latest()
   
   # $("#btn_login").click ->

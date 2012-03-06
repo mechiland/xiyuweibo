@@ -43,6 +43,9 @@ title: Hello World!
     </div>
     <div style="clear:both"></div>
   </div>
+  <div class="recent_comments">
+    最近发表的微博
+  </div>
 </div>
 </script>
 
@@ -90,6 +93,21 @@ title: Hello World!
 </div>
 </script>
 
+<script id="comments_template" type="text/x-dot-template">
+[[ for (i in it) { ]]
+<div class="single_bo">
+  <div class="avatar"><img src="[[=it[i].user.profile_image_url]]"/></div>
+  <div class="content">
+    <div class="user">[[=it[i].user.name]]
+        <span class="time">[[=new Date(it[i].created_at).human() ]]</span>
+      </div>
+    </div>
+    <span class="text">[[=it[i].text]]</span>
+  </div>
+  <div style="clear:both"></div>
+</div>
+[[ } ]]
+</script>
 
 <div class="page">
     <div class="main">

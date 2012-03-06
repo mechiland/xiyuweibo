@@ -151,6 +151,10 @@ ul.bo_list li {
   padding: 10px 15px 10px 10px;
 }
 
+.side_container {
+  padding: 10px 15px 10px 20px;
+}
+
 .bo_container .stat {
   display:none;
 }
