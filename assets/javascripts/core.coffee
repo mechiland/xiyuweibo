@@ -1,6 +1,4 @@
-sina_api = {
-  home: "https://api.weibo.com/2/statuses/home_timeline.json"
-}
+api_prefix = "https://api.weibo.com"
 
 $ ->
   
@@ -12,10 +10,11 @@ $ ->
   Users = new UserList
   
   Tweet = Backbone.Model.extend({})
-  window.TweetList = Backbone.Collection.extend({
+  TweetList = Backbone.Collection.extend({
     model: Tweet,
     min_id: 0,
     max_id: 0,
+    api: "#{api_prefix}/2/statuses/home_timeline.json"
     
     initialize: ->
       this.bind("add", this.updateUser, this)
@@ -37,7 +36,7 @@ $ ->
     init: (token) -> 
       @token = token
       console.log("get token: #{@token}")
-      $.getJSON sina_api.home, {access_token: @token}, (data) =>
+      $.getJSON this.api, {access_token: @token}, (data) =>
         this.add(data["statuses"].reverse())
         @min_id = this.at(0).id
         @max_id = this.at(this.length - 1).id
@@ -55,6 +54,17 @@ $ ->
   });
 
   window.Tweets = new TweetList
+  
+  Comment = Backbone.Model.extend({})
+  CommentList = Backbone.Collection.extend({
+    model: Comment,
+    api: "#{api_prefix}/2/comments/show.json",
+    fetch_local: ->
+      $.getJSON "status_comments.json", (data) =>
+        this.add(data["statuses"].reverse())
+  })
+  
+  Comments = new CommentList
 
   window.AccessToken = Backbone.Model.extend({
     defaults: -> 
@@ -130,7 +140,7 @@ $ ->
     initialize: -> Tweets.bind('add', this.addOne, this)
     addOne: (s)->
       view = new TweetView({model: s, id:"status-#{s.id}", attributes: {"data-id" : s.id}})
-      $("#tweets_list").prepend(view.render().el);
+      $("#tweets_list").prepend(view.render().el); #TODO: only scroll when nessary
     showTweet: (id) ->
       view = new TweetDetailView({model: Tweets.get(parseInt(id))})
       view.render()

@@ -10,9 +10,23 @@
         <h2 id="qunit-banner"></h2>
         <ol id="qunit-tests"></ol>
         <script src="qunit-1.2.0.js"></script>
+        <script src="../assets/javascripts/underscore-min.js"></script>
         <script>
-            test("hello", function() {
-                ok(true, "world");
+            test("_.find performance", function() {
+                var data = [];
+                var t1 = new Date();
+                console.log(t1)
+                var num = 1000000;
+                for (var i = 0; i < num; i++) {
+                  data.push({id: i, name: num+", name"})
+                }
+                var t2 = new Date();
+                console.log("init " + num + " objects takes " + (t2 - t1));
+                var result = _.find(data, function(d){ return d.id == (1000000-1)})
+                console.log(result)
+                t3 = new Date();
+                console.log(t3)
+                console.log("find objects takes " + num + (t3 - t2));
             });
         </script>
     </body>
