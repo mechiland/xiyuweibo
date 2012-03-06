@@ -47,6 +47,10 @@ nav img:active {
   box-shadow: 0 0 20px yellow;
 }
 
+.icon {
+  margin-bottom: -3px;
+}
+
 .main {
   margin-bottom: 36px;
   overflow: auto;
@@ -161,6 +165,12 @@ ul.bo_list li {
 
 .bo_container:hover .comment_stats, .bo_container:hover .stat {
   display: inline;
+}
+
+.recent_comments, .recent_statuses {
+  margin: 20px 0px 20px 0px;
+  padding-top: 20px;
+  border-top: 1px dotted #ccc;
 }
 
 .bo_container:hover .time {
