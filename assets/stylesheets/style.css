@@ -59,7 +59,7 @@ nav img:active {
   border-right: 1px solid #ccc;
   z-index: 100;
   position: relative;
-  box-shadow: 3px 0px 10px #999;  
+/*  box-shadow: 0px 0px 6px #999;  */
 }
 
 .side {
@@ -275,4 +275,42 @@ a {
   left: 0;
   top: 0;
   z-index: -1;
+}
+
+#logo {
+  margin-top: 150px;
+  font-size: 20px;
+  text-align: center;
+  z-index: 2000;
+}
+
+#logo .l1 {
+  color: #1f9303;
+  text-shadow: 0 0 1px #1f9303;
+}
+#logo .l2 {
+  color: #787489;
+  text-shadow: 0 0 1px #787489;
+}
+#logo .l3 {
+  color: #f26a82;
+  text-shadow: 0 0 1px #f26a82;
+}
+#logo .l4 {
+  color: #ff8000;
+  text-shadow: 0 0 1px #ff8000;
+}
+
+#logo .wrapper {
+  display: block;
+  margin-top: 20px;
+}
+
+#btn_login {
+  cursor: pointer;
+  -webkit-transition: box-shadow 0.1s linear
+}
+
+#btn_login:hover {
+  box-shadow: 0 0 10px red;
 }
