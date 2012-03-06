@@ -2,7 +2,7 @@ html, body {
   padding: 0px;
   margin: 0px;
   overflow: hidden;
-  background: url(../images/purty_wood.png);
+  background: #fff url(../images/bg.png) repeat-x left bottom;
   color: #323232;
   -webkit-user-select: none;
   font: 12px "Lucida Sans Unicode", "Myriad Pro", "Hiragino Sans GB", "Heiti SC", "微软雅黑", Verdana, Helvetica, sans-serif, SimHei, "黑体";  
@@ -75,7 +75,7 @@ nav img:active {
 
 .inner {
   width:1000px;
-  background-color: #fff;
+/*  background-color: #fff;*/
   position: relative;
   height: 100%;
   z-index: 1px;
@@ -85,7 +85,7 @@ nav img:active {
   width: 500px;
   height: 100%;
   position: absolute;
-  background-color: #fff;
+/*  background-color: #fff;*/
 }
 
 #block1 {
