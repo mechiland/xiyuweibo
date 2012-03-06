@@ -7,7 +7,16 @@ $ ->
   })
 
   window.AccessTokenList = Backbone.Collection.extend({
-    model: AccessToken
+    model: AccessToken,
+    
+    initialize: ->
+      this.bind("add", this.activate, this)
+    
+    activate: ->
+      this.pick(this.at(0).get("token"))
+    
+    pick: (val)-> # use a give in token
+      this.trigger("token:activate", val)
   })
   
   window.Tokens = new AccessTokenList
@@ -28,10 +37,11 @@ $ ->
     
     initialize: ->
       this.bind("add", this.updateUser, this)
-      Tokens.bind("add", this.updateToken, this)
+      Tokens.bind("token:activate", this.updateToken, this)
     
     updateToken: (t)->
-      @token = t.get("token")
+      @token = t
+      this.update_latest()
     
     updateUser: (s)->
       json = s.toJSON()
@@ -47,13 +57,6 @@ $ ->
       else
         Users.add(new User(json))
     
-    init: (token) -> 
-      @token = token
-      console.log("get token: #{@token}")
-      $.getJSON this.api, {access_token: @token}, (data) =>
-        this.add(data["statuses"].reverse())
-        @min_id = this.at(0).id
-        @max_id = this.at(this.length - 1).id
     update_latest: ->
       console.log("Updating from server...> #{@max_id} using token: #{@token}")
       $.getJSON @api, {access_token: @token, since_id: @max_id}, (data) =>
@@ -94,10 +97,11 @@ $ ->
     template: doT.template($("#template").text())
     
     initialize: ->
-      Tokens.bind("add", this.updateToken, this)
+      Tokens.bind("token:activate", this.updateToken, this)
     
     updateToken: (t)->
-      @token = t.get("token")
+      @token = t
+      $("#logo").hide()
     
     render: ->
       $(this.el).html(this.template(this.model.toJSON()))
@@ -163,7 +167,14 @@ $ ->
   
   TweetsView = Backbone.View.extend({
     el: $("#tweets_list")
-    initialize: -> Tweets.bind('add', this.addOne, this)
+    initialize: -> 
+      Tweets.bind('add', this.addOne, this)
+      Tokens.bind("token:activate", this.updateUI, this)
+      
+    updateUI: ->
+      $(".nav_buttons").show("slow")
+      $("#logo").hide("fast");
+      
     addOne: (s)->
       view = new TweetView({model: s, id:"status-#{s.id}", attributes: {"data-id" : s.id}})
       $("#tweets_list").prepend(view.render().el); #TODO: only scroll when nessary
@@ -185,10 +196,10 @@ $ ->
     }
     
     initialize: ->
-      Tokens.bind("add", this.updateToken, this)
+      Tokens.bind("token:activate", this.updateToken, this)
     
     updateToken: (t)->
-      @token = t.get("token")
+      @token = t
     
     render: ->
       $(this.el).animate({"top": "80px"}, "fast")

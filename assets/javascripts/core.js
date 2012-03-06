@@ -12,7 +12,16 @@ $(function() {
     }
   });
   window.AccessTokenList = Backbone.Collection.extend({
-    model: AccessToken
+    model: AccessToken,
+    initialize: function() {
+      return this.bind("add", this.activate, this);
+    },
+    activate: function() {
+      return this.pick(this.at(0).get("token"));
+    },
+    pick: function(val) {
+      return this.trigger("token:activate", val);
+    }
   });
   window.Tokens = new AccessTokenList;
   User = Backbone.Model.extend({});
@@ -28,10 +37,11 @@ $(function() {
     api: "" + api_prefix + "/2/statuses/home_timeline.json",
     initialize: function() {
       this.bind("add", this.updateUser, this);
-      return Tokens.bind("add", this.updateToken, this);
+      return Tokens.bind("token:activate", this.updateToken, this);
     },
     updateToken: function(t) {
-      return this.token = t.get("token");
+      this.token = t;
+      return this.update_latest();
     },
     updateUser: function(s) {
       var json, user1, user2;
@@ -49,18 +59,6 @@ $(function() {
       } else {
         return Users.add(new User(json));
       }
-    },
-    init: function(token) {
-      var _this = this;
-      this.token = token;
-      console.log("get token: " + this.token);
-      return $.getJSON(this.api, {
-        access_token: this.token
-      }, function(data) {
-        _this.add(data["statuses"].reverse());
-        _this.min_id = _this.at(0).id;
-        return _this.max_id = _this.at(_this.length - 1).id;
-      });
     },
     update_latest: function() {
       var _this = this;
@@ -107,10 +105,11 @@ $(function() {
     },
     template: doT.template($("#template").text()),
     initialize: function() {
-      return Tokens.bind("add", this.updateToken, this);
+      return Tokens.bind("token:activate", this.updateToken, this);
     },
     updateToken: function(t) {
-      return this.token = t.get("token");
+      this.token = t;
+      return $("#logo").hide();
     },
     render: function() {
       $(this.el).html(this.template(this.model.toJSON()));
@@ -189,7 +188,12 @@ $(function() {
   TweetsView = Backbone.View.extend({
     el: $("#tweets_list"),
     initialize: function() {
-      return Tweets.bind('add', this.addOne, this);
+      Tweets.bind('add', this.addOne, this);
+      return Tokens.bind("token:activate", this.updateUI, this);
+    },
+    updateUI: function() {
+      $(".nav_buttons").show("slow");
+      return $("#logo").hide("fast");
     },
     addOne: function(s) {
       var view;
@@ -223,10 +227,10 @@ $(function() {
       "click .submit": "submit"
     },
     initialize: function() {
-      return Tokens.bind("add", this.updateToken, this);
+      return Tokens.bind("token:activate", this.updateToken, this);
     },
     updateToken: function(t) {
-      return this.token = t.get("token");
+      return this.token = t;
     },
     render: function() {
       $(this.el).animate({

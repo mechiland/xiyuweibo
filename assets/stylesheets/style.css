@@ -51,7 +51,7 @@ nav img:active {
 }
 
 .main {
-  margin-top: 40px;
+  margin-top: 37px;
   overflow: auto;
   max-width: 400px;
   min-width: 400px;
@@ -63,7 +63,7 @@ nav img:active {
 
 .side {
   position: absolute;
-  margin-top: 40px;
+  margin-top: 37px;
   overflow-x: hidden;
   height: 100%;
   border-right: 1px solid #ccc; 
@@ -319,4 +319,8 @@ a {
   margin-right: 20px;
   font-size: 16px;
   margin-top: 6px;
+}
+
+.nav_buttons {
+  display: none;
 }

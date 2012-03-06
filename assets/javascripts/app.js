@@ -48,13 +48,13 @@ check = function(w) {
 };
 
 $(function() {
-  $(".main, .side").attr("style", "height: " + (window.innerHeight - 40) + "px");
+  $(".main, .side").attr("style", "height: " + (window.innerHeight - 37) + "px");
   $(document).on("click", ".single_bo .content a", function() {
     macgap.app.open($(this).attr("href"));
     return false;
   });
   $(window).resize(function() {
-    return $(".main, .side").attr("style", "height: " + (window.innerHeight - 40) + "px");
+    return $(".main, .side").attr("style", "height: " + (window.innerHeight - 37) + "px");
   });
   $("#btn_fetch").click(function() {
     Tweets.fetch_local();
@@ -63,7 +63,7 @@ $(function() {
   $("#nav_new_status").click(function() {
     return NewStatus.render();
   });
-  return $("#btn_login").click(function() {
+  $("#btn_login").click(function() {
     var l;
     l = macgap.window.open({
       url: "public/auth_sina.html",
@@ -71,5 +71,10 @@ $(function() {
       height: 480
     });
     return check(l);
+  });
+  return $("#pick").click(function() {
+    var t;
+    t = $("#token").val();
+    return Tokens.pick(t);
   });
 });
