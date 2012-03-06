@@ -48,6 +48,9 @@ $ ->
     Comments.fetch_local()
     # statuses.update_latest()
   
+  $("#nav_new_status").click -> 
+    NewStatus.render()
+  
   # $("#btn_login").click ->
   #     l = macgap.window.open({url: "public/auth_sina.html", width: 640, height: 480})
   #     check(l);

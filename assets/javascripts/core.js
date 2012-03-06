@@ -3,7 +3,7 @@ var api_prefix;
 api_prefix = "https://api.weibo.com";
 
 $(function() {
-  var Comment, CommentList, ListView, Routes, Tweet, TweetDetailView, TweetList, TweetView, TweetsView, User, UserDetailView, UserList, Users, Workspace, _last;
+  var Comment, CommentList, ListView, NewStatusView, Routes, Tweet, TweetDetailView, TweetList, TweetView, TweetsView, User, UserDetailView, UserList, Users, Workspace, _last;
   User = Backbone.Model.extend({});
   UserList = Backbone.Collection.extend({
     model: User
@@ -93,7 +93,9 @@ $(function() {
     events: {
       "click .avatar": "show_user",
       "click .user_link": "show_user_link",
-      "click .content": "show_detail"
+      "click .content": "show_detail",
+      "click .reply": "reply",
+      "click .retweet": "retweet"
     },
     template: doT.template($("#template").text()),
     render: function() {
@@ -115,6 +117,8 @@ $(function() {
       location.href = $(el.target).attr("href");
       return false;
     },
+    reply: function() {},
+    retweet: function() {},
     show_user: function() {
       return Routes.navigate("users/" + (this.model.get("user").id), {
         trigger: true
@@ -192,6 +196,35 @@ $(function() {
     }
   });
   ListView = new TweetsView;
+  NewStatusView = Backbone.View.extend({
+    el: $("#new_status"),
+    events: {
+      "click .cancel": "cancel",
+      "click .submit": "submit"
+    },
+    render: function() {
+      $(this.el).animate({
+        "bottom": "200px"
+      }, "fast");
+      $(this.el).find("textarea").focus();
+      return $("#overlay").css("z-index", "150");
+    },
+    cancel: function() {
+      $(this.el).animate({
+        "bottom": "-130px"
+      }, "fast");
+      return $("#overlay").css("z-index", "-1");
+    },
+    submit: function() {
+      return $(this.el).animate({
+        "bottom": "1000px"
+      }, "fast", function() {
+        $(this).css("bottom", "-130px");
+        return $("#overlay").css("z-index", "-1");
+      });
+    }
+  });
+  window.NewStatus = new NewStatusView;
   Workspace = Backbone.Router.extend({
     routes: {
       "": "index",

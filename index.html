@@ -8,7 +8,7 @@ title: Hello World!
   <img src="assets/images/Chatting.png" title="@我的微博"/>
   <img src="assets/images/World.png" title="大家在说什么"/>  
   <img id="btn_fetch" src="assets/images/Repeat.png" title="刷新"/>
-  <img src="assets/images/add.png" title="发表新的微博"/>
+  <img id="nav_new_status" src="assets/images/add.png" title="发表新的微博"/>
   
   <img id="btn_login" src="assets/images/Star.png" />
 </nav>
@@ -111,16 +111,29 @@ title: Hello World!
 [[ } ]]
 </script>
 
+<div id="overlay">xx</div>
+
 <div class="page">
     <div class="main">
       <ul class="bo_list" id="tweets_list">
       </ul>
+      
     </div>
     <div class="side" id="side">
       <div class="inner" id="inner">
         <div id="block1" class="anim_block"></div>
         <div id="block2" class="anim_block"></div>
         </div>
+      </div>
+    </div>  
+    <div id="new_status">
+      <div class="new_status_container">
+        <img src="assets/images/user/1.jpeg" />
+        <textarea></textarea>
+      </div>
+      <div class="send_action">
+        <input type="button" value="取消" class="btn btn-inverse cancel"/>
+        <input type="button" value="发表微博" class="btn btn-primary submit"/>
       </div>
     </div>
 </div>

@@ -79,9 +79,10 @@ $ ->
     events: 
       "click .avatar": "show_user",
       "click .user_link": "show_user_link",
-      "click .content": "show_detail"
+      "click .content": "show_detail",
+      "click .reply": "reply",
+      "click .retweet": "retweet"
 
-      
     template: doT.template($("#template").text())
     
     render: ->
@@ -100,6 +101,12 @@ $ ->
     show_user_link: (el)->
       location.href=$(el.target).attr("href")
       return false;
+    
+    reply: ->
+      
+      
+    retweet: ->
+      
     
     show_user: ->
       Routes.navigate("users/#{this.model.get("user").id}", {trigger: true})
@@ -153,6 +160,29 @@ $ ->
   })
 
   ListView = new TweetsView
+  
+  NewStatusView = Backbone.View.extend({
+    el: $("#new_status")
+    events: {
+      "click .cancel" : "cancel",
+      "click .submit" : "submit"
+    }
+    render: ->
+      $(this.el).animate({"bottom": "200px"}, "fast")
+      $(this.el).find("textarea").focus()
+      $("#overlay").css("z-index", "150");
+    
+    cancel: ->
+      $(this.el).animate {"bottom": "-130px"}, "fast"
+      $("#overlay").css("z-index", "-1");
+      
+    submit: ->
+      $(this.el).animate {"bottom": "1000px"}, "fast", ->
+        $(this).css("bottom", "-130px")
+        $("#overlay").css("z-index", "-1");
+  })
+  
+  window.NewStatus = new NewStatusView
 
   # Router
   Workspace = Backbone.Router.extend({

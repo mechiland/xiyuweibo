@@ -55,11 +55,11 @@ nav img:active {
   margin-bottom: 36px;
   overflow: auto;
   max-width: 400px;
-  min-width: 320px;
+  min-width: 400px;
   border-right: 1px solid #ccc;
   z-index: 100;
   position: relative;
-  box-shadow: 3px 0px 10px #999;
+  box-shadow: 3px 0px 10px #999;  
 }
 
 .side {
@@ -174,10 +174,11 @@ ul.bo_list li {
 }
 
 .bo_container:hover .time {
-  display: none;;
+  display: none;
 }
 
 .selected {
+  -webkit-transition: background 1s linear;
   box-shadow: 1px 1px 2px #ddd inset;
   background: -webkit-linear-gradient(top, #f0f0f0, #f6f6f6);
 }
@@ -205,4 +206,69 @@ a {
   color: #666;
   font-size: 11px;
   text-align: right;
+}
+
+#new_status {
+  position: absolute;
+  z-index: 200;
+  left: 0px;
+  margin-left: 10px;
+  bottom: -130px;
+  width: 380px;
+  margin-bottom: 46px;
+  height: 120px;
+  border-radius: 6px;
+  background-color: #fff;
+  box-shadow: 0px 0px 6px #666;
+}
+
+.new_status_container {
+  padding: 10px;
+}
+
+.new_status_container img {
+  border-radius: 6px;
+}
+
+
+.send_action {
+  height: 40px;
+  width: 100%;
+  padding-top: 6px;
+  background-color: #000;
+  border-radius: 0px 0px 4px 4px;
+  border-bottom: 1px solid #000;
+}
+
+.send_action .submit {
+  float: right;
+  margin-right: 10px;
+}
+
+.send_action .cancel {
+  margin-left: 10px;
+}
+
+#new_status textarea {
+  border: none;
+  width: 300px;
+  height: 50px;
+  outline: none;
+  resize: none;
+  font-size: 12px;
+}
+
+#new_status textarea:active {
+  border: none;
+}
+
+#overlay {
+  background-color: #000;
+  opacity: 0.2;
+  position: absolute;
+  width: 2000px;
+  height: 2000px;
+  left: 0;
+  top: 0;
+  z-index: -1;
 }

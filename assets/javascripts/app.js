@@ -53,8 +53,11 @@ $(function() {
   $(window).resize(function() {
     return $(".main, .side").attr("style", "height: " + (window.innerHeight - 36) + "px");
   });
-  return $("#btn_fetch").click(function() {
+  $("#btn_fetch").click(function() {
     Tweets.fetch_local();
     return Comments.fetch_local();
+  });
+  return $("#nav_new_status").click(function() {
+    return NewStatus.render();
   });
 });
