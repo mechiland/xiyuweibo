@@ -1,7 +1,7 @@
 api_prefix = "https://api.weibo.com"
 
 $ ->
-  
+
   AccessToken = Backbone.Model.extend({
     defaults: -> 
       {created_at: new Date}
@@ -137,6 +137,7 @@ $ ->
     
     render: ->
       _this = this
+      $(this.el).scrollTop(0)
       $(this.el).css("width", parseInt(this.side_width) * 2 + "px");
       $(this.el).find(".anim_block").each ->
         $(this).css("width", _this.side_width);
@@ -155,7 +156,6 @@ $ ->
           if old == "0px" then new_width = "-#{_this.side_width}" else new_width = "0px"
           $(this).css("left", new_width)
           $(_this.el).css("left", "0px")
-      
   })
   
   UserDetailView = TweetDetailView.extend({
@@ -202,10 +202,12 @@ $ ->
       
     submit: ->
       api = "https://api.weibo.com/2/statuses/update.json"
-      $.post api, {access_token: @token, status: $("#new_status_content").val()}
+      $.post api, {access_token: @token, status: $("#new_status_content").val()}, ->
+        $("#new_status_content").val("")
+      
       $(this.el).animate {"bottom": "1000px"}, "fast", ->
-        $(this).css("bottom", "-130px")
-        $("#overlay").css("z-index", "-1");
+      $(this).css("bottom", "-130px")
+      $("#overlay").css("z-index", "-1");
   })
   
   window.NewStatus = new NewStatusView
@@ -213,12 +215,8 @@ $ ->
   # Router
   Workspace = Backbone.Router.extend({
     routes: 
-      "":                 "index",  
       "tweets/:id":     "show_tweet",  
-      "users/:id":         "show_user" 
-
-    index: ->
-      console.log("Home") # TODO
+      "users/:id":      "show_user" 
   
     show_tweet: (id)->
       if Tweets.length > 0

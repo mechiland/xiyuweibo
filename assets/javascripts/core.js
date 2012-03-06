@@ -152,6 +152,7 @@ $(function() {
     render: function() {
       var _this;
       _this = this;
+      $(this.el).scrollTop(0);
       $(this.el).css("width", parseInt(this.side_width) * 2 + "px");
       $(this.el).find(".anim_block").each(function() {
         $(this).css("width", _this.side_width);
@@ -246,24 +247,21 @@ $(function() {
       $.post(api, {
         access_token: this.token,
         status: $("#new_status_content").val()
+      }, function() {
+        return $("#new_status_content").val("");
       });
-      return $(this.el).animate({
+      $(this.el).animate({
         "bottom": "1000px"
-      }, "fast", function() {
-        $(this).css("bottom", "-130px");
-        return $("#overlay").css("z-index", "-1");
-      });
+      }, "fast", function() {});
+      $(this).css("bottom", "-130px");
+      return $("#overlay").css("z-index", "-1");
     }
   });
   window.NewStatus = new NewStatusView;
   Workspace = Backbone.Router.extend({
     routes: {
-      "": "index",
       "tweets/:id": "show_tweet",
       "users/:id": "show_user"
-    },
-    index: function() {
-      return console.log("Home");
     },
     show_tweet: function(id) {
       if (Tweets.length > 0) return ListView.showTweet(id);
