@@ -34,14 +34,14 @@ $ ->
   
   _last = null
   
-  $(".main, .side").attr("style", "height: " + (window.innerHeight - 36) + "px")
+  $(".main, .side").attr("style", "height: " + (window.innerHeight - 40) + "px")
   
   $(document).on "click", ".single_bo .content a", ->
     macgap.app.open($(this).attr("href"))
     return false
   
   $(window).resize ->
-    $(".main, .side").attr("style", "height: " + (window.innerHeight - 36) + "px")
+    $(".main, .side").attr("style", "height: " + (window.innerHeight - 40) + "px")
   
   $("#btn_fetch").click ->
     # Tweets.fetch_local()

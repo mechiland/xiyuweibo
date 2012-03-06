@@ -50,13 +50,13 @@ check = function(w) {
 $(function() {
   var _last;
   _last = null;
-  $(".main, .side").attr("style", "height: " + (window.innerHeight - 36) + "px");
+  $(".main, .side").attr("style", "height: " + (window.innerHeight - 40) + "px");
   $(document).on("click", ".single_bo .content a", function() {
     macgap.app.open($(this).attr("href"));
     return false;
   });
   $(window).resize(function() {
-    return $(".main, .side").attr("style", "height: " + (window.innerHeight - 36) + "px");
+    return $(".main, .side").attr("style", "height: " + (window.innerHeight - 40) + "px");
   });
   $("#btn_fetch").click(function() {
     return Tweets.update_latest();
