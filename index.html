@@ -3,20 +3,6 @@ layout: default
 title: Hello World!
 ---
 
-<nav>
-  <img src="assets/images/login.png" title="我的首页"/>
-  <img src="assets/images/Chatting.png" title="@我的微博"/>
-  <img src="assets/images/World.png" title="大家在说什么"/>  
-  <img id="btn_fetch" src="assets/images/Repeat.png" title="刷新"/>
-  <img id="nav_new_status" src="assets/images/add.png" title="发表新的微博"/>
-  <span class="logo_small logo">
-    <span class="l1">细</span>
-    <span class="l2">语</span>
-    <span class="l3">微</span>
-    <span class="l4">博</span>
-  </span>
-</nav>
-
 <script id="template_full" type="text/x-dot-template">
 <div class="side_container" data-id="[[=it.id]]" id="status-[[=it.id]]">
   <div class="single_bo">
@@ -114,6 +100,22 @@ title: Hello World!
 </div>
 [[ } ]]
 </script>
+
+<nav>
+  <span class="nav_buttons">
+    <img src="assets/images/login.png" title="我的首页"/>
+    <img src="assets/images/Chatting.png" title="@我的微博"/>
+    <img src="assets/images/World.png" title="大家在说什么"/>  
+    <img id="btn_fetch" src="assets/images/Repeat.png" title="刷新"/>
+    <img id="nav_new_status" src="assets/images/add.png" title="发表新的微博"/>
+  </span>
+  <span class="logo_small logo">
+    <span class="l1">细</span>
+    <span class="l2">语</span>
+    <span class="l3">微</span>
+    <span class="l4">博</span>
+  </span>
+</nav>
 
 <div id="overlay"></div>
 

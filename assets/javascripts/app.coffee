@@ -32,8 +32,6 @@ check = (w) ->
 
 $ ->
   
-  _last = null
-  
   $(".main, .side").attr("style", "height: " + (window.innerHeight - 40) + "px")
   
   $(document).on "click", ".single_bo .content a", ->
@@ -44,9 +42,9 @@ $ ->
     $(".main, .side").attr("style", "height: " + (window.innerHeight - 40) + "px")
   
   $("#btn_fetch").click ->
-    # Tweets.fetch_local()
-    # Comments.fetch_local()
-    Tweets.update_latest()
+    Tweets.fetch_local()
+    Comments.fetch_local()
+    # Tweets.update_latest()
   
   $("#nav_new_status").click -> 
     NewStatus.render()

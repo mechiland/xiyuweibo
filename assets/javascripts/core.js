@@ -230,14 +230,14 @@ $(function() {
     },
     render: function() {
       $(this.el).animate({
-        "bottom": "200px"
+        "top": "80px"
       }, "fast");
       $(this.el).find("textarea").focus();
       return $("#overlay").css("z-index", "150");
     },
     cancel: function() {
       $(this.el).animate({
-        "bottom": "-130px"
+        "top": "-100px"
       }, "fast");
       return $("#overlay").css("z-index", "-1");
     },
@@ -251,9 +251,8 @@ $(function() {
         return $("#new_status_content").val("");
       });
       $(this.el).animate({
-        "bottom": "1000px"
-      }, "fast", function() {});
-      $(this).css("bottom", "-130px");
+        "top": "-100px"
+      }, "fast");
       return $("#overlay").css("z-index", "-1");
     }
   });

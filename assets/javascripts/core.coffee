@@ -1,7 +1,6 @@
 api_prefix = "https://api.weibo.com"
 
 $ ->
-
   AccessToken = Backbone.Model.extend({
     defaults: -> 
       {created_at: new Date}
@@ -192,12 +191,12 @@ $ ->
       @token = t.get("token")
     
     render: ->
-      $(this.el).animate({"bottom": "200px"}, "fast")
+      $(this.el).animate({"top": "80px"}, "fast")
       $(this.el).find("textarea").focus()
       $("#overlay").css("z-index", "150");
     
     cancel: ->
-      $(this.el).animate {"bottom": "-130px"}, "fast"
+      $(this.el).animate {"top": "-100px"}, "fast"
       $("#overlay").css("z-index", "-1");
       
     submit: ->
@@ -205,8 +204,7 @@ $ ->
       $.post api, {access_token: @token, status: $("#new_status_content").val()}, ->
         $("#new_status_content").val("")
       
-      $(this.el).animate {"bottom": "1000px"}, "fast", ->
-      $(this).css("bottom", "-130px")
+      $(this.el).animate {"top": "-100px"}, "fast"
       $("#overlay").css("z-index", "-1");
   })
   

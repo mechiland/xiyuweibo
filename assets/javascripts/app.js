@@ -48,8 +48,6 @@ check = function(w) {
 };
 
 $(function() {
-  var _last;
-  _last = null;
   $(".main, .side").attr("style", "height: " + (window.innerHeight - 40) + "px");
   $(document).on("click", ".single_bo .content a", function() {
     macgap.app.open($(this).attr("href"));
@@ -59,7 +57,8 @@ $(function() {
     return $(".main, .side").attr("style", "height: " + (window.innerHeight - 40) + "px");
   });
   $("#btn_fetch").click(function() {
-    return Tweets.update_latest();
+    Tweets.fetch_local();
+    return Comments.fetch_local();
   });
   $("#nav_new_status").click(function() {
     return NewStatus.render();

@@ -107,6 +107,9 @@ ul.bo_list li {
   border-bottom: 1px solid #dedede;
 }
 
+.recent_comments .single_bo {
+  border-bottom: 1px dotted #ddd;
+}
 .single_bo img {
   border-radius: 4px;
 }
@@ -214,7 +217,7 @@ a {
   z-index: 200;
   left: 0px;
   margin-left: 10px;
-  bottom: -130px;
+  top: -100px;
   width: 380px;
   height: 120px;
   border-radius: 6px;
