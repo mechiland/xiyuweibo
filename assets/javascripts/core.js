@@ -13,6 +13,7 @@ $(function() {
   });
   window.AccessTokenList = Backbone.Collection.extend({
     model: AccessToken,
+    token: null,
     initialize: function() {
       return this.bind("add", this.activate, this);
     },
@@ -20,10 +21,32 @@ $(function() {
       return this.pick(this.at(0).get("token"));
     },
     pick: function(val) {
-      return this.trigger("token:activate", val);
+      this.token = val;
+      return this.trigger("token:activate", this.token);
+    },
+    apiGet: function(url, data, callback) {
+      return this._invoke(url, data, callback, false);
+    },
+    apiPost: function(url, data, callback) {
+      return this._invoke(url, data, callback, true);
+    },
+    _invoke: function(url, data, callback, isPost) {
+      var method, verb;
+      verb = "get";
+      if (isPost) verb = "post";
+      console.log("" + verb + " " + url + " " + (JSON.stringify(data)));
+      if (this.token) {
+        method = $.getJSON;
+        if (isPost) method = $.post;
+        return method(url, _.extend({
+          access_token: this.token
+        }, data), callback);
+      } else {
+        return console.log("CANNOT FIND TOKEN!");
+      }
     }
   });
-  window.Tokens = new AccessTokenList;
+  window.API = new AccessTokenList;
   User = Backbone.Model.extend({});
   UserList = Backbone.Collection.extend({
     model: User
@@ -36,11 +59,9 @@ $(function() {
     max_id: 0,
     api: "" + api_prefix + "/2/statuses/home_timeline.json",
     initialize: function() {
-      this.bind("add", this.updateUser, this);
-      return Tokens.bind("token:activate", this.updateToken, this);
+      return this.bind("add", this.updateUser, this);
     },
     updateToken: function(t) {
-      this.token = t;
       return this.update_latest();
     },
     updateUser: function(s) {
@@ -62,9 +83,7 @@ $(function() {
     },
     update_latest: function() {
       var _this = this;
-      console.log("Updating from server...> " + this.max_id + " using token: " + this.token);
-      return $.getJSON(this.api, {
-        access_token: this.token,
+      return API.apiGet(this.api, {
         since_id: this.max_id
       }, function(data) {
         _this.add(data["statuses"].reverse());
@@ -74,7 +93,7 @@ $(function() {
     },
     fetch_local: function() {
       var _this = this;
-      return $.getJSON("home_timeline.json", function(data) {
+      return API.apiGet("home_timeline.json", {}, function(data) {
         return _this.add(data["statuses"].reverse());
       });
     }
@@ -86,8 +105,30 @@ $(function() {
     api: "" + api_prefix + "/2/comments/show.json",
     fetch_local: function() {
       var _this = this;
-      return $.getJSON("status_comments.json", function(data) {
-        return _this.add(data["comments"].reverse());
+      return API.apiGet("status_comments.json", {}, function(data) {
+        return _this.add(data["comments"]);
+      });
+    },
+    fetch_by_status: function(status_id) {
+      var cs;
+      var _this = this;
+      cs = this.by_status(status_id);
+      console.log("found comments: " + cs.length);
+      if (this.by_status(status_id).length === 0) {
+        return API.apiGet(this.api, {
+          id: status_id
+        }, function(data) {
+          return _this.add(data["comments"]);
+        });
+      }
+    },
+    by_status: function(status_id) {
+      var result;
+      result = this.select(function(c) {
+        return c.toJSON().status.id === parseInt(status_id);
+      });
+      return _.map(result, function(c) {
+        return c.toJSON();
       });
     }
   });
@@ -105,10 +146,9 @@ $(function() {
     },
     template: doT.template($("#template").text()),
     initialize: function() {
-      return Tokens.bind("token:activate", this.updateToken, this);
+      return API.bind("token:activate", this.updateToken, this);
     },
-    updateToken: function(t) {
-      this.token = t;
+    updateToken: function() {
       return $("#logo").hide();
     },
     render: function() {
@@ -154,10 +194,12 @@ $(function() {
       $(this.el).scrollTop(0);
       $(this.el).css("width", parseInt(this.side_width) * 2 + "px");
       $(this.el).find(".anim_block").each(function() {
+        var comments;
         $(this).css("width", _this.side_width);
         if ($(this).css("left") !== "0px") {
           $(this).html(_this.template(_this.model.toJSON()));
-          return $(this).find(".recent_comments").html(_this.comment_template(Comments.toJSON()));
+          comments = Comments.by_status(_this.model.id);
+          return $(this).find(".recent_comments").html(_this.comment_template(comments));
         }
       });
       return this._animate();
@@ -189,7 +231,7 @@ $(function() {
     el: $("#tweets_list"),
     initialize: function() {
       Tweets.bind('add', this.addOne, this);
-      return Tokens.bind("token:activate", this.updateUI, this);
+      return API.bind("token:activate", this.updateUI, this);
     },
     updateUI: function() {
       $(".nav_buttons").show("slow");
@@ -208,6 +250,7 @@ $(function() {
     },
     showTweet: function(id) {
       var view;
+      Comments.fetch_by_status(id);
       view = new TweetDetailView({
         model: Tweets.get(parseInt(id))
       });
@@ -222,15 +265,10 @@ $(function() {
   ListView = new TweetsView;
   NewStatusView = Backbone.View.extend({
     el: $("#new_status"),
+    api: "" + api_prefix + "/2/statuses/update.json",
     events: {
       "click .cancel": "cancel",
       "click .submit": "submit"
-    },
-    initialize: function() {
-      return Tokens.bind("token:activate", this.updateToken, this);
-    },
-    updateToken: function(t) {
-      return this.token = t;
     },
     render: function() {
       $(this.el).animate({
@@ -246,10 +284,7 @@ $(function() {
       return $("#overlay").css("z-index", "-1");
     },
     submit: function() {
-      var api;
-      api = "https://api.weibo.com/2/statuses/update.json";
-      $.post(api, {
-        access_token: this.token,
+      API.apiPost(this.api, {
         status: $("#new_status_content").val()
       }, function() {
         return $("#new_status_content").val("");

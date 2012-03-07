@@ -7,7 +7,8 @@ $ ->
   })
 
   window.AccessTokenList = Backbone.Collection.extend({
-    model: AccessToken,
+    model: AccessToken
+    token: null
     
     initialize: ->
       this.bind("add", this.activate, this)
@@ -16,10 +17,28 @@ $ ->
       this.pick(this.at(0).get("token"))
     
     pick: (val)-> # use a give in token
-      this.trigger("token:activate", val)
+      @token = val
+      this.trigger("token:activate", @token)
+    
+    apiGet: (url, data, callback) ->
+      this._invoke(url, data, callback, false)
+    
+    apiPost: (url, data, callback) ->
+      this._invoke(url, data, callback, true)
+    
+    _invoke: (url, data, callback, isPost) ->
+      verb = "get"
+      if isPost then verb = "post"
+      console.log("#{verb} #{url} #{JSON.stringify(data)}");
+      if @token
+        method = $.getJSON
+        if isPost then method = $.post
+        method url, _.extend({access_token: @token}, data), callback
+      else
+        console.log("CANNOT FIND TOKEN!")
   })
   
-  window.Tokens = new AccessTokenList
+  window.API = new AccessTokenList
   
   User = Backbone.Model.extend({})
   UserList = Backbone.Collection.extend({
@@ -37,10 +56,8 @@ $ ->
     
     initialize: ->
       this.bind("add", this.updateUser, this)
-      Tokens.bind("token:activate", this.updateToken, this)
     
     updateToken: (t)->
-      @token = t
       this.update_latest()
     
     updateUser: (s)->
@@ -58,14 +75,13 @@ $ ->
         Users.add(new User(json))
     
     update_latest: ->
-      console.log("Updating from server...> #{@max_id} using token: #{@token}")
-      $.getJSON @api, {access_token: @token, since_id: @max_id}, (data) =>
-        this.add(data["statuses"].reverse())
+      API.apiGet @api, {since_id: @max_id}, (data) =>
+        this.add(data["statuses"].reverse()) #fix the events here to batch update
         @min_id = this.at(0).id
         @max_id = this.at(this.length - 1).id
   
     fetch_local: ->
-      $.getJSON "home_timeline.json", (data) =>
+      API.apiGet "home_timeline.json", {}, (data) =>
         this.add(data["statuses"].reverse())
   
   });
@@ -77,8 +93,18 @@ $ ->
     model: Comment,
     api: "#{api_prefix}/2/comments/show.json",
     fetch_local: ->
-      $.getJSON "status_comments.json", (data) =>
-        this.add(data["comments"].reverse())
+      API.apiGet "status_comments.json", {}, (data) =>
+        this.add(data["comments"])
+    fetch_by_status: (status_id)->
+      cs = this.by_status(status_id)
+      console.log("found comments: #{cs.length}")
+      if this.by_status(status_id).length == 0
+        API.apiGet @api, {id: status_id}, (data) =>
+          this.add(data["comments"])
+    by_status: (status_id) ->
+      result = this.select (c) -> 
+        c.toJSON().status.id == parseInt(status_id)
+      return _.map result, (c) -> c.toJSON()
   })
   
   window.Comments = new CommentList
@@ -97,10 +123,9 @@ $ ->
     template: doT.template($("#template").text())
     
     initialize: ->
-      Tokens.bind("token:activate", this.updateToken, this)
+      API.bind("token:activate", this.updateToken, this)
     
-    updateToken: (t)->
-      @token = t
+    updateToken: ->
       $("#logo").hide()
     
     render: ->
@@ -146,8 +171,8 @@ $ ->
         $(this).css("width", _this.side_width);
         if $(this).css("left") != "0px"
           $(this).html(_this.template(_this.model.toJSON()))
-          # comments = Comments.select (c) -> c.status.id == _this.model.id
-          $(this).find(".recent_comments").html(_this.comment_template(Comments.toJSON()))
+          comments = Comments.by_status(_this.model.id)
+          $(this).find(".recent_comments").html(_this.comment_template(comments))
       
       this._animate()
           
@@ -169,7 +194,7 @@ $ ->
     el: $("#tweets_list")
     initialize: -> 
       Tweets.bind('add', this.addOne, this)
-      Tokens.bind("token:activate", this.updateUI, this)
+      API.bind("token:activate", this.updateUI, this)
       
     updateUI: ->
       $(".nav_buttons").show("slow")
@@ -179,6 +204,7 @@ $ ->
       view = new TweetView({model: s, id:"status-#{s.id}", attributes: {"data-id" : s.id}})
       $("#tweets_list").prepend(view.render().el); #TODO: only scroll when nessary
     showTweet: (id) ->
+      Comments.fetch_by_status(id)
       view = new TweetDetailView({model: Tweets.get(parseInt(id))})
       view.render()
       
@@ -190,16 +216,11 @@ $ ->
   
   NewStatusView = Backbone.View.extend({
     el: $("#new_status")
+    api: "#{api_prefix}/2/statuses/update.json"
     events: {
       "click .cancel" : "cancel",
       "click .submit" : "submit"
     }
-    
-    initialize: ->
-      Tokens.bind("token:activate", this.updateToken, this)
-    
-    updateToken: (t)->
-      @token = t
     
     render: ->
       $(this.el).animate({"top": "80px"}, "fast")
@@ -211,8 +232,7 @@ $ ->
       $("#overlay").css("z-index", "-1");
       
     submit: ->
-      api = "https://api.weibo.com/2/statuses/update.json"
-      $.post api, {access_token: @token, status: $("#new_status_content").val()}, ->
+      API.apiPost @api, { status: $("#new_status_content").val() }, ->
         $("#new_status_content").val("")
       
       $(this.el).animate {"top": "-100px"}, "fast"

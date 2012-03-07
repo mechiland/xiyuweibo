@@ -56,9 +56,12 @@ $(function() {
   $(window).resize(function() {
     return $(".main, .side").attr("style", "height: " + (window.innerHeight - 37) + "px");
   });
-  $("#btn_fetch").click(function() {
+  $("#btn_fetch2").click(function() {
     Tweets.fetch_local();
     return Comments.fetch_local();
+  });
+  $("#btn_fetch").click(function() {
+    return Tweets.update_latest();
   });
   $("#nav_new_status").click(function() {
     return NewStatus.render();
@@ -75,6 +78,6 @@ $(function() {
   return $("#pick").click(function() {
     var t;
     t = $("#token").val();
-    return Tokens.pick(t);
+    return API.pick(t);
   });
 });

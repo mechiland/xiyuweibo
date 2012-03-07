@@ -41,10 +41,12 @@ $ ->
   $(window).resize ->
     $(".main, .side").attr("style", "height: " + (window.innerHeight - 37) + "px")
   
-  $("#btn_fetch").click ->
+  $("#btn_fetch2").click ->
     Tweets.fetch_local()
     Comments.fetch_local()
-    # Tweets.update_latest()
+
+  $("#btn_fetch").click ->
+    Tweets.update_latest()
   
   $("#nav_new_status").click -> 
     NewStatus.render()
@@ -55,5 +57,5 @@ $ ->
     
   $("#pick").click -> 
     t = $("#token").val()
-    Tokens.pick(t)
+    API.pick(t)
     
