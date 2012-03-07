@@ -156,10 +156,7 @@ $(function() {
       return this;
     },
     show_detail: function() {
-      if (_last !== null) {
-        if (_last === this) return;
-        $(_last.el).removeClass("selected");
-      }
+      if (_last !== null && _last !== this) $(_last.el).removeClass("selected");
       $(this.el).addClass("selected");
       _last = this;
       return Routes.navigate("tweets/" + this.model.id, {

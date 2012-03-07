@@ -133,8 +133,7 @@ $ ->
       return this
     
     show_detail: -> 
-      if _last != null 
-        if _last == this then return
+      if _last != null && _last != this
         $(_last.el).removeClass("selected")
       
       $(this.el).addClass("selected")
@@ -150,7 +149,6 @@ $ ->
       
     retweet: ->
       return false
-      
     
     show_user: ->
       Routes.navigate("users/#{this.model.get("user").id}", {trigger: true})
