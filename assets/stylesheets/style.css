@@ -171,10 +171,14 @@ ul.bo_list li {
   display: inline;
 }
 
-.recent_comments, .recent_statuses {
+.recent_container {
   margin: 20px 0px 20px 0px;
   padding-top: 20px;
   border-top: 1px dotted #ccc;
+}
+
+.recent_container .loading {
+  text-align: center;
 }
 
 .bo_container:hover .time {

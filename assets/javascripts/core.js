@@ -103,6 +103,7 @@ $(function() {
   CommentList = Backbone.Collection.extend({
     model: Comment,
     api: "" + api_prefix + "/2/comments/show.json",
+    cache: {},
     fetch_local: function() {
       var _this = this;
       return API.apiGet("status_comments.json", {}, function(data) {
@@ -110,25 +111,55 @@ $(function() {
       });
     },
     fetch_by_status: function(status_id) {
-      var cs;
       var _this = this;
-      cs = this.by_status(status_id);
-      console.log("found comments: " + cs.length);
-      if (this.by_status(status_id).length === 0) {
+      return API.apiGet(this.api, {
+        id: status_id
+      }, function(data) {
+        return _this.add(data["comments"]);
+      });
+    },
+    by_status: function(status_id, callback) {
+      var result;
+      var _this = this;
+      result = this._filter_by_status(status_id);
+      if (this._expired(status_id)) {
         return API.apiGet(this.api, {
-          id: status_id
+          id: status_id,
+          since_id: this.cache[status_id]["maxId"]
         }, function(data) {
-          return _this.add(data["comments"]);
+          var cs;
+          console.log(JSON.stringify(_this.cache));
+          cs = data["comments"];
+          _this.cache[status_id]["lastUpdate"] = (new Date).getTime();
+          if (cs.length > 0) {
+            _this.cache[status_id]["maxId"] = cs[0].id;
+            _this.cache[status_id]["minId"] = cs[cs.length - 1].id;
+          }
+          _this.add(cs);
+          return callback(_this._filter_by_status(status_id));
         });
+      } else {
+        return callback(result);
       }
     },
-    by_status: function(status_id) {
-      var result;
-      result = this.select(function(c) {
+    _expired: function(status_id) {
+      if (this.cache[status_id]) {
+        return (new Date()).getTime() - this.cache[status_id]["lastUpdate"] > 3 * 1000;
+      } else {
+        this.cache[status_id] = {};
+        return true;
+      }
+    },
+    _filter_by_status: function(status_id) {
+      if (_.isUndefined(this.cache[status_id])) {
+        this.cache[status_id] = {
+          lastUpdate: 0,
+          maxId: 0,
+          minId: 0
+        };
+      }
+      return this.select(function(c) {
         return c.toJSON().status.id === parseInt(status_id);
-      });
-      return _.map(result, function(c) {
-        return c.toJSON();
       });
     }
   });
@@ -191,12 +222,18 @@ $(function() {
       $(this.el).scrollTop(0);
       $(this.el).css("width", parseInt(this.side_width) * 2 + "px");
       $(this.el).find(".anim_block").each(function() {
-        var comments;
         $(this).css("width", _this.side_width);
         if ($(this).css("left") !== "0px") {
           $(this).html(_this.template(_this.model.toJSON()));
-          comments = Comments.by_status(_this.model.id);
-          return $(this).find(".recent_comments").html(_this.comment_template(comments));
+          return Comments.by_status(_this.model.id, function(data) {
+            var comments;
+            $(".loading").hide();
+            console.log("loaded comments " + data.length);
+            comments = _.map(data, function(c) {
+              return c.toJSON();
+            });
+            return $(".recent_comments").html(_this.comment_template(comments));
+          });
         }
       });
       return this._animate();
@@ -247,7 +284,6 @@ $(function() {
     },
     showTweet: function(id) {
       var view;
-      Comments.fetch_by_status(id);
       view = new TweetDetailView({
         model: Tweets.get(parseInt(id))
       });

@@ -92,19 +92,41 @@ $ ->
   CommentList = Backbone.Collection.extend({
     model: Comment,
     api: "#{api_prefix}/2/comments/show.json",
+    cache: {}
     fetch_local: ->
       API.apiGet "status_comments.json", {}, (data) =>
         this.add(data["comments"])
     fetch_by_status: (status_id)->
-      cs = this.by_status(status_id)
-      console.log("found comments: #{cs.length}")
-      if this.by_status(status_id).length == 0
-        API.apiGet @api, {id: status_id}, (data) =>
-          this.add(data["comments"])
-    by_status: (status_id) ->
-      result = this.select (c) -> 
+      API.apiGet @api, {id: status_id}, (data) =>
+        this.add(data["comments"])
+    by_status: (status_id, callback) ->
+      result = this._filter_by_status(status_id)
+      if this._expired(status_id)
+        API.apiGet @api, {id: status_id, since_id: @cache[status_id]["maxId"]}, (data) =>
+          console.log(JSON.stringify(@cache))
+          cs = data["comments"]          
+          @cache[status_id]["lastUpdate"] = (new Date).getTime()
+          if (cs.length > 0)
+            @cache[status_id]["maxId"] = cs[0].id
+            @cache[status_id]["minId"] = cs[cs.length - 1].id
+          this.add(cs)
+          callback(this._filter_by_status(status_id))
+      else      
+        callback(result)
+    
+    _expired: (status_id) ->
+      if @cache[status_id]
+        (new Date()).getTime() - @cache[status_id]["lastUpdate"] > 3 * 1000
+      else
+        @cache[status_id] = {}
+        return true
+      
+    _filter_by_status: (status_id) ->
+      if _.isUndefined(@cache[status_id])
+        @cache[status_id] = {lastUpdate: 0, maxId: 0, minId: 0}
+      this.select (c) -> 
         c.toJSON().status.id == parseInt(status_id)
-      return _.map result, (c) -> c.toJSON()
+      
   })
   
   window.Comments = new CommentList
@@ -169,8 +191,11 @@ $ ->
         $(this).css("width", _this.side_width);
         if $(this).css("left") != "0px"
           $(this).html(_this.template(_this.model.toJSON()))
-          comments = Comments.by_status(_this.model.id)
-          $(this).find(".recent_comments").html(_this.comment_template(comments))
+          Comments.by_status _this.model.id, (data)->
+            $(".loading").hide();
+            console.log("loaded comments #{data.length}")
+            comments = _.map data, (c) -> c.toJSON()
+            $(".recent_comments").html(_this.comment_template(comments))
       
       this._animate()
           
@@ -182,6 +207,7 @@ $ ->
           if old == "0px" then new_width = "-#{_this.side_width}" else new_width = "0px"
           $(this).css("left", new_width)
           $(_this.el).css("left", "0px")
+        
   })
   
   UserDetailView = TweetDetailView.extend({
@@ -202,7 +228,6 @@ $ ->
       view = new TweetView({model: s, id:"status-#{s.id}", attributes: {"data-id" : s.id}})
       $("#tweets_list").prepend(view.render().el); #TODO: only scroll when nessary
     showTweet: (id) ->
-      Comments.fetch_by_status(id)
       view = new TweetDetailView({model: Tweets.get(parseInt(id))})
       view.render()
       

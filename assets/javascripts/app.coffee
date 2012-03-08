@@ -6,7 +6,9 @@ String::autoAt = ->
   this.replace(pattern, "<a href='http://www.weibo.com/n/$2'>$1</a>")
 
 Date::human = ->
-  this.format("m月d日 hh:mm")
+  minutes = this.getMinutes()
+  if minutes < 10 then minutes = "0" + minutes
+  "#{this.getMonth() + 1}月#{this.getDate()}日 #{this.getHours()}:#{minutes}"
 
 side_width = "500px"; 
 
@@ -28,7 +30,7 @@ check = (w) ->
     delay(2000, -> check(w))
   else
     token = w.url().match(pattern)[1]
-    Tokens.add({token: token})
+    API.pick(token)
 
 $ ->
   

@@ -15,7 +15,10 @@ String.prototype.autoAt = function() {
 };
 
 Date.prototype.human = function() {
-  return this.format("m月d日 hh:mm");
+  var minutes;
+  minutes = this.getMinutes();
+  if (minutes < 10) minutes = "0" + minutes;
+  return "" + (this.getMonth() + 1) + "月" + (this.getDate()) + "日 " + (this.getHours()) + ":" + minutes;
 };
 
 side_width = "500px";
@@ -41,9 +44,7 @@ check = function(w) {
     });
   } else {
     token = w.url().match(pattern)[1];
-    return Tokens.add({
-      token: token
-    });
+    return API.pick(token);
   }
 };
 

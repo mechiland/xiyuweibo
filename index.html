@@ -18,7 +18,7 @@ title: Hello World!
       </div>
       <span class="text">[[=it.text]]</span>
       [[ if (it.bmiddle_pic) {]]
-      <div class="tweet_image"><img src="[[=it.bmiddle_pic]]" /></div>
+      <div class="tweet_image"><img src="[[=it.original_pic]]" /></div>
       [[ } ]]
       [[ if (it.retweeted_status) { ]]
         <div class="rt_content"><img src="assets/images/retweet.png" class="icon" />
@@ -33,8 +33,11 @@ title: Hello World!
     </div>
     <div style="clear:both"></div>
   </div>
-  <div class="recent_comments">
-    最近发表的微博
+  <div class="recent_container">
+    <div class="loading">正在读取评论⋯⋯</div>
+    <div class="recent_comments">
+     
+    </div>
   </div>
 </div>
 </script>
@@ -52,9 +55,10 @@ title: Hello World!
     <div style="clear:both"></div>
   </div>
 </div>
-
-<div class="recent_statuses">
-  最近发表的微博
+<div class="recent_container">
+  <div class="recent_statuses">
+    最近发表的微博
+  </div>
 </div>
 
 </script>
@@ -72,7 +76,7 @@ title: Hello World!
         <a href="#" class="reply">评论</a>([[=it.comments_count]])
         <a href="#" class="retweet">转发</a>([[=it.reposts_count]])
         </span>
-        <span class="time">[[=new Date(it.created_at).human()]]</span>
+        <span class="time">[[=(new Date(it.created_at)).human()]]</span>
       </div>
     </div>
     <span class="text">[[=it.text]]</span>
