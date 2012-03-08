@@ -43,7 +43,7 @@ title: Hello World!
 </script>
 
 <script id="user_detail_template" type="text/x-dot-template">
-<div class="use_detail side_container" data-id="[[=it.id]]" id="user-detail-[[=it.id]]">
+<div class="side_container use_detail" data-id="[[=it.id]]" id="user-detail-[[=it.id]]">
   <div class="single_bo">
     <div class="avatar"><img src="[[=it.profile_image_url]]"/></div>
     <div class="content">
@@ -54,12 +54,15 @@ title: Hello World!
     </div>
     <div style="clear:both"></div>
   </div>
-</div>
-<div class="recent_container">
-  <div class="recent_statuses">
-    最近发表的微博
+  <div class="recent_container">
+    <div class="loading">正在读取个人微博⋯⋯</div>
+    <div class="recent_statuses">
+     
+    </div>
   </div>
+  
 </div>
+
 
 </script>
 

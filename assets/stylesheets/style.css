@@ -106,7 +106,7 @@ ul.bo_list li {
   border-bottom: 1px solid #dedede;
 }
 
-.recent_comments .single_bo {
+.recent_comments .single_bo, .recent_comments .single_bo {
   border-bottom: 1px dotted #ddd;
 }
 .single_bo img {

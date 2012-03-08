@@ -86,6 +86,39 @@ $ ->
 
   window.Tweets = new TweetList
   
+  UserTweetList = TweetList.extend({
+    api: "#{api_prefix}/2/statuses/user_timeline.json"
+    cache: {}    
+    initialize: ->
+      
+    by_user: (user_id, callback) ->
+      if this._expired(user_id)
+        API.apiGet @api, {uid: user_id, since_id: @cache[user_id]["maxId"]}, (data) =>        
+          @cache[user_id]["lastUpdate"] = (new Date()).getTime()
+          d = data["statuses"]
+          console.log("found #{d.length} tweets for user #{user_id}")
+          if d.length > 0
+            @cache[user_id]["maxId"] = d[0].id
+            @cache[user_id]["minId"] = d[d.length - 1].id            
+          this.add(d)          
+          callback(this._filter_by_user(user_id))
+      else 
+        callback(this._filter_by_user(user_id))
+      
+    _filter_by_user: (user_id) ->
+      this.select (t) -> 
+        t.toJSON().user.id == parseInt(user_id)
+
+    _expired: (user_id) ->
+      if @cache[user_id]
+        (new Date()).getTime() - @cache[user_id]["lastUpdate"] > 120 * 1000 
+      else
+        @cache[user_id] = {}
+        return true
+  })
+  
+  UserTweets = new UserTweetList
+    
   Comment = Backbone.Model.extend({})
   CommentList = Backbone.Collection.extend({
     model: Comment,
@@ -98,7 +131,6 @@ $ ->
       API.apiGet @api, {id: status_id}, (data) =>
         this.add(data["comments"])
     by_status: (status_id, callback) ->
-      result = this._filter_by_status(status_id)
       if this._expired(status_id)
         API.apiGet @api, {id: status_id, since_id: @cache[status_id]["maxId"]}, (data) =>
           cs = data["comments"]          
@@ -107,10 +139,10 @@ $ ->
             @cache[status_id]["maxId"] = cs[0].id
             @cache[status_id]["minId"] = cs[cs.length - 1].id
           this.add(cs)
-          callback(this._filter_by_status(status_id))
-      else      
-        callback(result)
-    
+        callback(this._filter_by_status(status_id))
+      else
+        return this._filter_by_status(status_id)
+        
     _expired: (status_id) ->
       if @cache[status_id]
         (new Date()).getTime() - @cache[status_id]["lastUpdate"] > 120 * 1000 
@@ -206,8 +238,36 @@ $ ->
         
   })
   
-  UserDetailView = TweetDetailView.extend({
+  UserDetailView = Backbone.View.extend({
+    el: $("#inner")
+    side_width: "500px"
+    comment_template: doT.template($("#comments_template").text())
     template: doT.template($("#user_detail_template").text())
+    
+    render: ->
+      _this = this
+      $(this.el).scrollTop(0)
+      $(this.el).css("width", parseInt(this.side_width) * 2 + "px");
+      $(this.el).find(".anim_block").each ->
+        $(this).css("width", _this.side_width);
+        if $(this).css("left") != "0px"
+          $(this).html(_this.template(_this.model.toJSON()))
+          UserTweets.by_user _this.model.id, (data)->
+            $(".loading").hide();
+            tweets = _.map data, (t) -> t.toJSON()
+            $(".recent_statuses").html(_this.comment_template(tweets))
+      
+      this._animate()
+    
+    _animate: ->
+            _this = this
+            $(this.el).animate {"left": "+#{this.side_width}"}, "fast", -> 
+              $(_this.el).find(".anim_block").each (el) ->
+                old = $(this).css("left")
+                if old == "0px" then new_width = "-#{_this.side_width}" else new_width = "0px"
+                $(this).css("left", new_width)
+                $(_this.el).css("left", "0px")
+          
   })
   
   TweetsView = Backbone.View.extend({

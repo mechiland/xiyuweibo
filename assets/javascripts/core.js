@@ -3,7 +3,7 @@ var api_prefix;
 api_prefix = "https://api.weibo.com";
 
 $(function() {
-  var AccessToken, Comment, CommentList, ListView, NewStatusView, Routes, Tweet, TweetDetailView, TweetList, TweetView, TweetsView, User, UserDetailView, UserList, Users, Workspace, _last;
+  var AccessToken, Comment, CommentList, ListView, NewStatusView, Routes, Tweet, TweetDetailView, TweetList, TweetView, TweetsView, User, UserDetailView, UserList, UserTweetList, UserTweets, Users, Workspace, _last;
   AccessToken = Backbone.Model.extend({
     defaults: function() {
       return {
@@ -97,6 +97,47 @@ $(function() {
     }
   });
   window.Tweets = new TweetList;
+  UserTweetList = TweetList.extend({
+    api: "" + api_prefix + "/2/statuses/user_timeline.json",
+    cache: {},
+    initialize: function() {},
+    by_user: function(user_id, callback) {
+      var _this = this;
+      if (this._expired(user_id)) {
+        return API.apiGet(this.api, {
+          uid: user_id,
+          since_id: this.cache[user_id]["maxId"]
+        }, function(data) {
+          var d;
+          _this.cache[user_id]["lastUpdate"] = (new Date()).getTime();
+          d = data["statuses"];
+          console.log("found " + d.length + " tweets for user " + user_id);
+          if (d.length > 0) {
+            _this.cache[user_id]["maxId"] = d[0].id;
+            _this.cache[user_id]["minId"] = d[d.length - 1].id;
+          }
+          _this.add(d);
+          return callback(_this._filter_by_user(user_id));
+        });
+      } else {
+        return callback(this._filter_by_user(user_id));
+      }
+    },
+    _filter_by_user: function(user_id) {
+      return this.select(function(t) {
+        return t.toJSON().user.id === parseInt(user_id);
+      });
+    },
+    _expired: function(user_id) {
+      if (this.cache[user_id]) {
+        return (new Date()).getTime() - this.cache[user_id]["lastUpdate"] > 120 * 1000;
+      } else {
+        this.cache[user_id] = {};
+        return true;
+      }
+    }
+  });
+  UserTweets = new UserTweetList;
   Comment = Backbone.Model.extend({});
   CommentList = Backbone.Collection.extend({
     model: Comment,
@@ -117,11 +158,9 @@ $(function() {
       });
     },
     by_status: function(status_id, callback) {
-      var result;
       var _this = this;
-      result = this._filter_by_status(status_id);
       if (this._expired(status_id)) {
-        return API.apiGet(this.api, {
+        API.apiGet(this.api, {
           id: status_id,
           since_id: this.cache[status_id]["maxId"]
         }, function(data) {
@@ -132,11 +171,11 @@ $(function() {
             _this.cache[status_id]["maxId"] = cs[0].id;
             _this.cache[status_id]["minId"] = cs[cs.length - 1].id;
           }
-          _this.add(cs);
-          return callback(_this._filter_by_status(status_id));
+          return _this.add(cs);
         });
+        return callback(this._filter_by_status(status_id));
       } else {
-        return callback(result);
+        return this._filter_by_status(status_id);
       }
     },
     _expired: function(status_id) {
@@ -254,8 +293,51 @@ $(function() {
       });
     }
   });
-  UserDetailView = TweetDetailView.extend({
-    template: doT.template($("#user_detail_template").text())
+  UserDetailView = Backbone.View.extend({
+    el: $("#inner"),
+    side_width: "500px",
+    comment_template: doT.template($("#comments_template").text()),
+    template: doT.template($("#user_detail_template").text()),
+    render: function() {
+      var _this;
+      _this = this;
+      $(this.el).scrollTop(0);
+      $(this.el).css("width", parseInt(this.side_width) * 2 + "px");
+      $(this.el).find(".anim_block").each(function() {
+        $(this).css("width", _this.side_width);
+        if ($(this).css("left") !== "0px") {
+          $(this).html(_this.template(_this.model.toJSON()));
+          return UserTweets.by_user(_this.model.id, function(data) {
+            var tweets;
+            $(".loading").hide();
+            tweets = _.map(data, function(t) {
+              return t.toJSON();
+            });
+            return $(".recent_statuses").html(_this.comment_template(tweets));
+          });
+        }
+      });
+      return this._animate();
+    },
+    _animate: function() {
+      var _this;
+      _this = this;
+      return $(this.el).animate({
+        "left": "+" + this.side_width
+      }, "fast", function() {
+        return $(_this.el).find(".anim_block").each(function(el) {
+          var new_width, old;
+          old = $(this).css("left");
+          if (old === "0px") {
+            new_width = "-" + _this.side_width;
+          } else {
+            new_width = "0px";
+          }
+          $(this).css("left", new_width);
+          return $(_this.el).css("left", "0px");
+        });
+      });
+    }
   });
   TweetsView = Backbone.View.extend({
     el: $("#tweets_list"),
