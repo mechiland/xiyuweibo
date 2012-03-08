@@ -225,7 +225,6 @@ $(function() {
           return Comments.by_status(_this.model.id, function(data) {
             var comments;
             $(".loading").hide();
-            console.log("loaded comments " + data.length);
             comments = _.map(data, function(c) {
               return c.toJSON();
             });
@@ -317,7 +316,8 @@ $(function() {
       API.apiPost(this.api, {
         status: $("#new_status_content").val()
       }, function() {
-        return $("#new_status_content").val("");
+        $("#new_status_content").val("");
+        return Tweets.update_latest();
       });
       $(this.el).animate({
         "top": "-100px"

@@ -16,7 +16,7 @@ title: Hello World!
           <span class="time">[[=new Date(it.created_at).human()]]</span>
         </div>
       </div>
-      <span class="text">[[=it.text]]</span>
+      <span class="text">[[=it.text.autoLink().autoAt()]]</span>
       [[ if (it.bmiddle_pic) {]]
       <div class="tweet_image"><img src="[[=it.bmiddle_pic]]" /></div>
       [[ } ]]
@@ -79,7 +79,7 @@ title: Hello World!
         <span class="time">[[=(new Date(it.created_at)).human()]]</span>
       </div>
     </div>
-    <span class="text">[[=it.text]]</span>
+    <span class="text">[[=it.text.autoLink().autoAt()]]</span>
     [[ if (it.retweeted_status) { ]]
       <div class="rt_content"><img src="assets/images/retweet.png" class="icon" />
         <span class="rt_user"><a href="#users/[[=it.retweeted_status.user.id]]" class="user_link">[[=it.retweeted_status.user.name]]</a>：</span><span class="rt_text">[[=it.retweeted_status.text.autoLink().autoAt()]]</span>
@@ -98,7 +98,7 @@ title: Hello World!
     <div class="user">[[=it[i].user.name]]
       <span class="time">[[=new Date(it[i].created_at).human() ]]</span>
     </div>    
-    <span class="text">[[=it[i].text]]</span>
+    <span class="text">[[=it[i].text.autoLink()]]</span>
   </div>
   <div style="clear:both"></div>
 </div>

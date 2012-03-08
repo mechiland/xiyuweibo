@@ -190,7 +190,6 @@ $ ->
           $(this).html(_this.template(_this.model.toJSON()))
           Comments.by_status _this.model.id, (data)->
             $(".loading").hide();
-            console.log("loaded comments #{data.length}")
             comments = _.map data, (c) -> c.toJSON()
             $(".recent_comments").html(_this.comment_template(comments))
       
@@ -254,6 +253,7 @@ $ ->
     submit: ->
       API.apiPost @api, { status: $("#new_status_content").val() }, ->
         $("#new_status_content").val("")
+        Tweets.update_latest()
       
       $(this.el).animate {"top": "-100px"}, "fast"
       $("#overlay").css("z-index", "-1");
