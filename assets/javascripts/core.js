@@ -160,7 +160,7 @@ $(function() {
     by_status: function(status_id, callback) {
       var _this = this;
       if (this._expired(status_id)) {
-        API.apiGet(this.api, {
+        return API.apiGet(this.api, {
           id: status_id,
           since_id: this.cache[status_id]["maxId"]
         }, function(data) {
@@ -171,11 +171,11 @@ $(function() {
             _this.cache[status_id]["maxId"] = cs[0].id;
             _this.cache[status_id]["minId"] = cs[cs.length - 1].id;
           }
-          return _this.add(cs);
+          _this.add(cs);
+          return callback(_this._filter_by_status(status_id));
         });
-        return callback(this._filter_by_status(status_id));
       } else {
-        return this._filter_by_status(status_id);
+        return callback(this._filter_by_status(status_id));
       }
     },
     _expired: function(status_id) {

@@ -139,9 +139,9 @@ $ ->
             @cache[status_id]["maxId"] = cs[0].id
             @cache[status_id]["minId"] = cs[cs.length - 1].id
           this.add(cs)
-        callback(this._filter_by_status(status_id))
+          callback(this._filter_by_status(status_id))
       else
-        return this._filter_by_status(status_id)
+        callback(this._filter_by_status(status_id))
         
     _expired: (status_id) ->
       if @cache[status_id]
