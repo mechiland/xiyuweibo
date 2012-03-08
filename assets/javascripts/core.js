@@ -59,10 +59,8 @@ $(function() {
     max_id: 0,
     api: "" + api_prefix + "/2/statuses/home_timeline.json",
     initialize: function() {
+      API.bind("token:activate", this.update_latest, this);
       return this.bind("add", this.updateUser, this);
-    },
-    updateToken: function(t) {
-      return this.update_latest();
     },
     updateUser: function(s) {
       var json, user1, user2;
@@ -128,7 +126,6 @@ $(function() {
           since_id: this.cache[status_id]["maxId"]
         }, function(data) {
           var cs;
-          console.log(JSON.stringify(_this.cache));
           cs = data["comments"];
           _this.cache[status_id]["lastUpdate"] = (new Date).getTime();
           if (cs.length > 0) {
@@ -144,7 +141,7 @@ $(function() {
     },
     _expired: function(status_id) {
       if (this.cache[status_id]) {
-        return (new Date()).getTime() - this.cache[status_id]["lastUpdate"] > 3 * 1000;
+        return (new Date()).getTime() - this.cache[status_id]["lastUpdate"] > 120 * 1000;
       } else {
         this.cache[status_id] = {};
         return true;

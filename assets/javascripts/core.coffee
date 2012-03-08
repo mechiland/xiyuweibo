@@ -55,11 +55,9 @@ $ ->
     api: "#{api_prefix}/2/statuses/home_timeline.json"
     
     initialize: ->
+      API.bind("token:activate", this.update_latest, this)
       this.bind("add", this.updateUser, this)
-    
-    updateToken: (t)->
-      this.update_latest()
-    
+        
     updateUser: (s)->
       json = s.toJSON()
       user1 = json["user"]
@@ -103,7 +101,6 @@ $ ->
       result = this._filter_by_status(status_id)
       if this._expired(status_id)
         API.apiGet @api, {id: status_id, since_id: @cache[status_id]["maxId"]}, (data) =>
-          console.log(JSON.stringify(@cache))
           cs = data["comments"]          
           @cache[status_id]["lastUpdate"] = (new Date).getTime()
           if (cs.length > 0)
@@ -116,7 +113,7 @@ $ ->
     
     _expired: (status_id) ->
       if @cache[status_id]
-        (new Date()).getTime() - @cache[status_id]["lastUpdate"] > 3 * 1000
+        (new Date()).getTime() - @cache[status_id]["lastUpdate"] > 120 * 1000 
       else
         @cache[status_id] = {}
         return true
