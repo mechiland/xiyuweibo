@@ -64,11 +64,17 @@ $ ->
   
   window.Tweets = new TweetList
   
+  PublicTweetList = TweetList.extend({
+    api: "#{api_prefix}/2/statuses/public_timeline.json"
+  })
+  window.PublicTweets = new PublicTweetList
+  
   User = Backbone.Model.extend({})
   UserList = Backbone.Collection.extend({
     model: User,
     initialize: ->
       Tweets.bind("add", this.updateUser, this)
+      PublicTweets.bind("add", this.updateUser, this)
   
     updateUser: (s)->
       json = s.toJSON()
@@ -271,7 +277,7 @@ $ ->
           
   })
   
-  TweetsView = Backbone.View.extend({
+  TweetListView = Backbone.View.extend({
     el: $("#home_tweets_list")
     initialize: -> 
       Tweets.bind('add', this.addOne, this)
@@ -283,16 +289,30 @@ $ ->
     addOne: (s)->
       view = new TweetView({model: s, id:"status-#{s.id}", attributes: {"data-id" : s.id}})
       $(this.el).prepend(view.render().el); #TODO: only scroll when nessary
-    showTweet: (id) ->
-      view = new TweetDetailView({model: Tweets.get(parseInt(id))})
-      view.render()
-      
-    showUser: (id) ->
-      new UserDetailView({model: Users.get(parseInt(id))}).render()
+
+    getTweet: (id) ->
+      Tweets.get(parseInt(id))
+
+    render: ->
+      $("#home_tweets_list").show()
+      $("#public_tweets_list").hide()
   })
 
-  ListView = new TweetsView
+  HomeTweetsView = new TweetListView
   
+  PublicTweetListView = TweetListView.extend({
+    el: $("#public_tweets_list")
+    initialize: ->
+      PublicTweets.bind('add', this.addOne, this)
+    getTweet: (id) ->
+      PublicTweets.get(parseInt(id))
+    render: ->
+      $("#home_tweets_list").hide()
+      $("#public_tweets_list").show()    
+  })
+  
+  PublicTweetsView = new PublicTweetListView
+    
   NewStatusView = Backbone.View.extend({
     el: $("#new_status")
     api: "#{api_prefix}/2/statuses/update.json"
@@ -377,6 +397,7 @@ $ ->
       
     goHome: ->
       this._updateIcon(".home");
+      HomeTweetsView.render();
       return false;
 
     goAtMe: ->
@@ -385,10 +406,12 @@ $ ->
 
     goPublic: ->
       this._updateIcon(".public");
+      PublicTweetsView.render();
       return false;
 
     refresh: ->
-      Tweets.update_latest()
+      if @current == '.home' then Tweets.update_latest()
+      if @current == '.public' then PublicTweets.update_latest()
       return false;
 
     newStatus: ->
@@ -410,12 +433,15 @@ $ ->
       "users/:id":      "show_user" 
   
     show_tweet: (id)->
-      if Tweets.length > 0
-        ListView.showTweet(id)
+      if Nav.current == ".home"
+        tweet = Tweets.get(id)
+      else 
+        tweet = PublicTweets.get(id)
+      view = new TweetDetailView({model: tweet})
+      view.render()
   
     show_user: (id) ->
-      if Users.length > 0
-        ListView.showUser(id)
+      new UserDetailView({model: Users.get(parseInt(id))}).render()
   })
 
   Routes = new Workspace

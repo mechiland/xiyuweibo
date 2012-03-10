@@ -3,7 +3,7 @@ var api_prefix;
 api_prefix = "https://api.weibo.com";
 
 $(function() {
-  var AccessToken, Comment, CommentList, ListView, NavView, NewCommentView, NewRetweetView, NewStatusView, Routes, Tweet, TweetDetailView, TweetList, TweetView, TweetsView, User, UserDetailView, UserList, UserTweetList, UserTweets, Users, Workspace, _last;
+  var AccessToken, Comment, CommentList, HomeTweetsView, NavView, NewCommentView, NewRetweetView, NewStatusView, PublicTweetList, PublicTweetListView, PublicTweetsView, Routes, Tweet, TweetDetailView, TweetList, TweetListView, TweetView, User, UserDetailView, UserList, UserTweetList, UserTweets, Users, Workspace, _last;
   AccessToken = Backbone.Model.extend({
     defaults: function() {
       return {
@@ -74,11 +74,16 @@ $(function() {
     }
   });
   window.Tweets = new TweetList;
+  PublicTweetList = TweetList.extend({
+    api: "" + api_prefix + "/2/statuses/public_timeline.json"
+  });
+  window.PublicTweets = new PublicTweetList;
   User = Backbone.Model.extend({});
   UserList = Backbone.Collection.extend({
     model: User,
     initialize: function() {
-      return Tweets.bind("add", this.updateUser, this);
+      Tweets.bind("add", this.updateUser, this);
+      return PublicTweets.bind("add", this.updateUser, this);
     },
     updateUser: function(s) {
       var json, user1, user2;
@@ -335,7 +340,7 @@ $(function() {
       });
     }
   });
-  TweetsView = Backbone.View.extend({
+  TweetListView = Backbone.View.extend({
     el: $("#home_tweets_list"),
     initialize: function() {
       Tweets.bind('add', this.addOne, this);
@@ -355,20 +360,29 @@ $(function() {
       });
       return $(this.el).prepend(view.render().el);
     },
-    showTweet: function(id) {
-      var view;
-      view = new TweetDetailView({
-        model: Tweets.get(parseInt(id))
-      });
-      return view.render();
+    getTweet: function(id) {
+      return Tweets.get(parseInt(id));
     },
-    showUser: function(id) {
-      return new UserDetailView({
-        model: Users.get(parseInt(id))
-      }).render();
+    render: function() {
+      $("#home_tweets_list").show();
+      return $("#public_tweets_list").hide();
     }
   });
-  ListView = new TweetsView;
+  HomeTweetsView = new TweetListView;
+  PublicTweetListView = TweetListView.extend({
+    el: $("#public_tweets_list"),
+    initialize: function() {
+      return PublicTweets.bind('add', this.addOne, this);
+    },
+    getTweet: function(id) {
+      return PublicTweets.get(parseInt(id));
+    },
+    render: function() {
+      $("#home_tweets_list").hide();
+      return $("#public_tweets_list").show();
+    }
+  });
+  PublicTweetsView = new PublicTweetListView;
   NewStatusView = Backbone.View.extend({
     el: $("#new_status"),
     api: "" + api_prefix + "/2/statuses/update.json",
@@ -472,6 +486,7 @@ $(function() {
     },
     goHome: function() {
       this._updateIcon(".home");
+      HomeTweetsView.render();
       return false;
     },
     goAtMe: function() {
@@ -480,10 +495,12 @@ $(function() {
     },
     goPublic: function() {
       this._updateIcon(".public");
+      PublicTweetsView.render();
       return false;
     },
     refresh: function() {
-      Tweets.update_latest();
+      if (this.current === '.home') Tweets.update_latest();
+      if (this.current === '.public') PublicTweets.update_latest();
       return false;
     },
     newStatus: function() {
@@ -504,10 +521,21 @@ $(function() {
       "users/:id": "show_user"
     },
     show_tweet: function(id) {
-      if (Tweets.length > 0) return ListView.showTweet(id);
+      var tweet, view;
+      if (Nav.current === ".home") {
+        tweet = Tweets.get(id);
+      } else {
+        tweet = PublicTweets.get(id);
+      }
+      view = new TweetDetailView({
+        model: tweet
+      });
+      return view.render();
     },
     show_user: function(id) {
-      if (Users.length > 0) return ListView.showUser(id);
+      return new UserDetailView({
+        model: Users.get(parseInt(id))
+      }).render();
     }
   });
   Routes = new Workspace;
