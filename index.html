@@ -6,7 +6,7 @@ title: Hello World!
 <script id="template_full" type="text/x-dot-template">
 <div class="side_container" data-id="[[=it.id]]" id="status-[[=it.id]]">
   <div class="single_bo" style="border-bottom: none">
-    <div class="avatar" id="useravatar-[[=it.user.id]]"><img src="[[=it.user.profile_image_url]]"/></div>
+    <div class="avatar ref_user" id="useravatar-[[=it.user.id]]"><img src="[[=it.user.profile_image_url]]"/></div>
     <div class="content">
       <div class="user">[[=it.user.name]]
         <div class="action">
@@ -45,7 +45,7 @@ title: Hello World!
 <script id="user_detail_template" type="text/x-dot-template">
 <div class="side_container use_detail" data-id="[[=it.id]]" id="user-detail-[[=it.id]]">
   <div class="single_bo" style="border-bottom: none">
-    <div class="avatar" id="useravatar-[[=it.id]]"><img src="[[=it.profile_image_url]]"/></div>
+    <div class="avatar ref_user" id="useravatar-[[=it.id]]"><img src="[[=it.profile_image_url]]"/></div>
     <div class="content">
       <div class="user">[[=it.name]]</div>
       <div>[[=it.description]]</div>
@@ -68,7 +68,7 @@ title: Hello World!
 
 <script id="template" type="text/x-dot-template">
 <div class="single_bo">
-  <div class="avatar" id="useravatar-[[=it.user.id]]"><img src="[[=it.user.profile_image_url]]"/></div>
+  <div class="avatar ref_user" id="useravatar-[[=it.user.id]]"><img src="[[=it.user.profile_image_url]]"/></div>
   <div class="content">
     <div class="user">[[=it.user.name]]
       <div class="action">
@@ -96,7 +96,7 @@ title: Hello World!
 <script id="user_statuses_template" type="text/x-dot-template">
 [[ for (i in it) { ]]
   <div class="single_bo">
-    <div class="avatar" id="useravatar-[[=it[i].user.id]]"><img src="[[=it[i].user.profile_image_url]]"/></div>
+    <div class="avatar ref_user" id="useravatar-[[=it[i].user.id]]"><img src="[[=it[i].user.profile_image_url]]"/></div>
     <div class="content">
       <div class="user">[[=it[i].user.name]]
         <div class="action">
@@ -126,7 +126,7 @@ title: Hello World!
 <script id="comments_template" type="text/x-dot-template">
 [[ for (i in it) { ]]
 <div class="single_bo">
-  <div class="avatar" id="useravatar-[[=it[i].user.id]]"><img src="[[=it[i].user.profile_image_url]]"/></div>
+  <div class="avatar ref_user" id="useravatar-[[=it[i].user.id]]"><img src="[[=it[i].user.profile_image_url]]"/></div>
   <div class="content">
     <div class="user">[[=it[i].user.name]]
       <span class="time">[[=new Date(it[i].created_at).human() ]]</span>

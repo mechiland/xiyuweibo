@@ -113,34 +113,6 @@ $ ->
   
   window.Comments = new CommentList
   
-  
-  User = Backbone.Model.extend({})
-  UserList = Backbone.Collection.extend({
-    model: User,
-    initialize: ->
-      Tweets.bind("add", this.updateUser, this)
-      PublicTweets.bind("add", this.updateUser, this)
-      AtmeTweets.bind("add", this.updateUser, this)
-      Comments.bind("add", this.updateUser, this)
-  
-    updateUser: (s)->
-      json = s.toJSON()
-      user1 = json["user"]
-      if json["retweeted_status"] then user2 = json["retweeted_status"]["user"]
-      this._updateUser(user1)
-      if user2 then this._updateUser(user2)
-
-    _updateUser: (json) ->
-      u = Users.get(json["id"])
-      if u
-        u.set json # TODO: skip the id
-      else
-        Users.add(new User(json))
-
-  })
-  
-  Users = new UserList
-  
   UserTweetList = TweetList.extend({
     api: "#{api_prefix}/2/statuses/user_timeline.json"
     cache: {}    
@@ -174,7 +146,33 @@ $ ->
   
   UserTweets = new UserTweetList
     
+  User = Backbone.Model.extend({})
+  UserList = Backbone.Collection.extend({
+    model: User,
+    initialize: ->
+      Tweets.bind("add", this.updateUser, this)
+      PublicTweets.bind("add", this.updateUser, this)
+      AtmeTweets.bind("add", this.updateUser, this)
+      Comments.bind("add", this.updateUser, this)
+      UserTweets.bind("add", this.updateUser, this)
+  
+    updateUser: (s)->
+      json = s.toJSON()
+      user1 = json["user"]
+      if json["retweeted_status"] then user2 = json["retweeted_status"]["user"]
+      this._updateUser(user1)
+      if user2 then this._updateUser(user2)
 
+    _updateUser: (json) ->
+      u = Users.get(json["id"])
+      if u
+        u.set json # TODO: skip the id
+      else
+        Users.add(new User(json))
+
+  })
+  
+  Users = new UserList
 
   _last = null
 
@@ -234,11 +232,17 @@ $ ->
     comment_template: doT.template($("#comments_template").text())
     events: 
       "click .avatar": "show_user"
+      "click .user_link": "show_user_link"
       
     show_user: (event)->
       user_id = $(event.currentTarget).attr("id").split("-")[1]
       Routes.navigate("users/#{user_id}", {trigger: true})
       return false
+
+    show_user_link: (el)->
+      location.href=$(el.target).attr("href")
+      return false;
+
     render: ->
       _this = this
       $(this.el).scrollTop(0)
@@ -270,6 +274,12 @@ $ ->
     side_width: "500px"
     comment_template: doT.template($("#user_statuses_template").text())
     template: doT.template($("#user_detail_template").text())
+    events: 
+      "click .user_link": "show_user_link"
+    show_user_link: (el)->
+      location.href=$(el.target).attr("href")
+      return false;
+    
     
     render: ->
       _this = this

@@ -138,34 +138,6 @@ $(function() {
     }
   });
   window.Comments = new CommentList;
-  User = Backbone.Model.extend({});
-  UserList = Backbone.Collection.extend({
-    model: User,
-    initialize: function() {
-      Tweets.bind("add", this.updateUser, this);
-      PublicTweets.bind("add", this.updateUser, this);
-      AtmeTweets.bind("add", this.updateUser, this);
-      return Comments.bind("add", this.updateUser, this);
-    },
-    updateUser: function(s) {
-      var json, user1, user2;
-      json = s.toJSON();
-      user1 = json["user"];
-      if (json["retweeted_status"]) user2 = json["retweeted_status"]["user"];
-      this._updateUser(user1);
-      if (user2) return this._updateUser(user2);
-    },
-    _updateUser: function(json) {
-      var u;
-      u = Users.get(json["id"]);
-      if (u) {
-        return u.set(json);
-      } else {
-        return Users.add(new User(json));
-      }
-    }
-  });
-  Users = new UserList;
   UserTweetList = TweetList.extend({
     api: "" + api_prefix + "/2/statuses/user_timeline.json",
     cache: {},
@@ -207,6 +179,35 @@ $(function() {
     }
   });
   UserTweets = new UserTweetList;
+  User = Backbone.Model.extend({});
+  UserList = Backbone.Collection.extend({
+    model: User,
+    initialize: function() {
+      Tweets.bind("add", this.updateUser, this);
+      PublicTweets.bind("add", this.updateUser, this);
+      AtmeTweets.bind("add", this.updateUser, this);
+      Comments.bind("add", this.updateUser, this);
+      return UserTweets.bind("add", this.updateUser, this);
+    },
+    updateUser: function(s) {
+      var json, user1, user2;
+      json = s.toJSON();
+      user1 = json["user"];
+      if (json["retweeted_status"]) user2 = json["retweeted_status"]["user"];
+      this._updateUser(user1);
+      if (user2) return this._updateUser(user2);
+    },
+    _updateUser: function(json) {
+      var u;
+      u = Users.get(json["id"]);
+      if (u) {
+        return u.set(json);
+      } else {
+        return Users.add(new User(json));
+      }
+    }
+  });
+  Users = new UserList;
   _last = null;
   TweetView = Backbone.View.extend({
     tagName: 'li',
@@ -264,7 +265,8 @@ $(function() {
     template: doT.template($("#template_full").text()),
     comment_template: doT.template($("#comments_template").text()),
     events: {
-      "click .avatar": "show_user"
+      "click .avatar": "show_user",
+      "click .user_link": "show_user_link"
     },
     show_user: function(event) {
       var user_id;
@@ -272,6 +274,10 @@ $(function() {
       Routes.navigate("users/" + user_id, {
         trigger: true
       });
+      return false;
+    },
+    show_user_link: function(el) {
+      location.href = $(el.target).attr("href");
       return false;
     },
     render: function() {
@@ -320,6 +326,13 @@ $(function() {
     side_width: "500px",
     comment_template: doT.template($("#user_statuses_template").text()),
     template: doT.template($("#user_detail_template").text()),
+    events: {
+      "click .user_link": "show_user_link"
+    },
+    show_user_link: function(el) {
+      location.href = $(el.target).attr("href");
+      return false;
+    },
     render: function() {
       var _this;
       _this = this;
