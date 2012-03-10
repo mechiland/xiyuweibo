@@ -84,13 +84,68 @@ $(function() {
     api: "" + api_prefix + "/2/statuses/mentions.json"
   });
   window.AtmeTweets = new AtmeTweetList;
+  Comment = Backbone.Model.extend({});
+  CommentList = Backbone.Collection.extend({
+    model: Comment,
+    api: "" + api_prefix + "/2/comments/show.json",
+    cache: {},
+    fetch_local: function() {
+      var _this = this;
+      return API.apiGet("status_comments.json", {}, function(data) {
+        return _this.add(data["comments"]);
+      });
+    },
+    by_status: function(status_id, callback) {
+      var _this = this;
+      if (this._expired(status_id)) {
+        return API.apiGet(this.api, {
+          id: status_id,
+          since_id: this.cache[status_id]["maxId"]
+        }, function(data) {
+          var cs;
+          cs = data["comments"];
+          _this.cache[status_id]["lastUpdate"] = (new Date).getTime();
+          if (cs.length > 0) {
+            _this.cache[status_id]["maxId"] = cs[0].id;
+            _this.cache[status_id]["minId"] = cs[cs.length - 1].id;
+          }
+          _this.add(cs);
+          return callback(_this._filter_by_status(status_id));
+        });
+      } else {
+        return callback(this._filter_by_status(status_id));
+      }
+    },
+    _expired: function(status_id) {
+      if (this.cache[status_id]) {
+        return (new Date()).getTime() - this.cache[status_id]["lastUpdate"] > 120 * 1000;
+      } else {
+        this.cache[status_id] = {};
+        return true;
+      }
+    },
+    _filter_by_status: function(status_id) {
+      if (_.isUndefined(this.cache[status_id])) {
+        this.cache[status_id] = {
+          lastUpdate: 0,
+          maxId: 0,
+          minId: 0
+        };
+      }
+      return this.select(function(c) {
+        return c.toJSON().status.id === parseInt(status_id);
+      });
+    }
+  });
+  window.Comments = new CommentList;
   User = Backbone.Model.extend({});
   UserList = Backbone.Collection.extend({
     model: User,
     initialize: function() {
       Tweets.bind("add", this.updateUser, this);
       PublicTweets.bind("add", this.updateUser, this);
-      return AtmeTweets.bind("add", this.updateUser, this);
+      AtmeTweets.bind("add", this.updateUser, this);
+      return Comments.bind("add", this.updateUser, this);
     },
     updateUser: function(s) {
       var json, user1, user2;
@@ -152,60 +207,6 @@ $(function() {
     }
   });
   UserTweets = new UserTweetList;
-  Comment = Backbone.Model.extend({});
-  CommentList = Backbone.Collection.extend({
-    model: Comment,
-    api: "" + api_prefix + "/2/comments/show.json",
-    cache: {},
-    fetch_local: function() {
-      var _this = this;
-      return API.apiGet("status_comments.json", {}, function(data) {
-        return _this.add(data["comments"]);
-      });
-    },
-    by_status: function(status_id, callback) {
-      var _this = this;
-      if (this._expired(status_id)) {
-        return API.apiGet(this.api, {
-          id: status_id,
-          since_id: this.cache[status_id]["maxId"]
-        }, function(data) {
-          var cs;
-          cs = data["comments"];
-          _this.cache[status_id]["lastUpdate"] = (new Date).getTime();
-          if (cs.length > 0) {
-            _this.cache[status_id]["maxId"] = cs[0].id;
-            _this.cache[status_id]["minId"] = cs[cs.length - 1].id;
-          }
-          _this.add(cs);
-          return callback(_this._filter_by_status(status_id));
-        });
-      } else {
-        return callback(this._filter_by_status(status_id));
-      }
-    },
-    _expired: function(status_id) {
-      if (this.cache[status_id]) {
-        return (new Date()).getTime() - this.cache[status_id]["lastUpdate"] > 120 * 1000;
-      } else {
-        this.cache[status_id] = {};
-        return true;
-      }
-    },
-    _filter_by_status: function(status_id) {
-      if (_.isUndefined(this.cache[status_id])) {
-        this.cache[status_id] = {
-          lastUpdate: 0,
-          maxId: 0,
-          minId: 0
-        };
-      }
-      return this.select(function(c) {
-        return c.toJSON().status.id === parseInt(status_id);
-      });
-    }
-  });
-  window.Comments = new CommentList;
   _last = null;
   TweetView = Backbone.View.extend({
     tagName: 'li',
@@ -248,8 +249,10 @@ $(function() {
       NewRetweet.render(this.model.id);
       return false;
     },
-    show_user: function() {
-      Routes.navigate("users/" + (this.model.get("user").id), {
+    show_user: function(event) {
+      var user_id;
+      user_id = $(event.currentTarget).attr("id").split("-")[1];
+      Routes.navigate("users/" + user_id, {
         trigger: true
       });
       return false;
@@ -260,6 +263,17 @@ $(function() {
     side_width: "500px",
     template: doT.template($("#template_full").text()),
     comment_template: doT.template($("#comments_template").text()),
+    events: {
+      "click .avatar": "show_user"
+    },
+    show_user: function(event) {
+      var user_id;
+      user_id = $(event.currentTarget).attr("id").split("-")[1];
+      Routes.navigate("users/" + user_id, {
+        trigger: true
+      });
+      return false;
+    },
     render: function() {
       var _this;
       _this = this;
@@ -304,7 +318,7 @@ $(function() {
   UserDetailView = Backbone.View.extend({
     el: $("#inner"),
     side_width: "500px",
-    comment_template: doT.template($("#comments_template").text()),
+    comment_template: doT.template($("#user_statuses_template").text()),
     template: doT.template($("#user_detail_template").text()),
     render: function() {
       var _this;

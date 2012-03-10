@@ -175,6 +175,8 @@ ul.bo_list li {
 
 .side_container .single_bo {
   margin-bottom: 10px;
+  padding-bottom: 4px;
+  border-bottom: 1px dotted #999;
 }
 
 .bo_container .stat {
@@ -216,6 +218,7 @@ ul.bo_list li {
 
 .time {
   visibility: visible;
+  font-weight: normal;
 }
 
 a {
@@ -339,5 +342,9 @@ a {
 }
 
 .nav_buttons {
+  display: none;
+}
+
+#public_tweets_list, #atme_tweets_list {
   display: none;
 }

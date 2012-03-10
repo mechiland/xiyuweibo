@@ -5,8 +5,8 @@ title: Hello World!
 
 <script id="template_full" type="text/x-dot-template">
 <div class="side_container" data-id="[[=it.id]]" id="status-[[=it.id]]">
-  <div class="single_bo">
-    <div class="avatar"><img src="[[=it.user.profile_image_url]]"/></div>
+  <div class="single_bo" style="border-bottom: none">
+    <div class="avatar" id="useravatar-[[=it.user.id]]"><img src="[[=it.user.profile_image_url]]"/></div>
     <div class="content">
       <div class="user">[[=it.user.name]]
         <div class="action">
@@ -22,7 +22,7 @@ title: Hello World!
       [[ } ]]
       [[ if (it.retweeted_status) { ]]
         <div class="rt_content"><img src="assets/images/retweet.png" class="icon" />
-          <span class="rt_user">[[=it.retweeted_status.user.name]]：</span><span class="rt_text">[[=it.retweeted_status.text.autoLink().autoAt()]]</span>
+          <span class="rt_user"><a href="#users/[[=it.retweeted_status.user.id]]" class="user_link">[[=it.retweeted_status.user.name]]</a>: </span><span class="rt_text">[[=it.retweeted_status.text.autoLink().autoAt()]]</span>
           [[ if (it.retweeted_status.bmiddle_pic) {]]
           <div class="tweet_image"><img src="[[=it.retweeted_status.bmiddle_pic]]" /></div>
           [[ } ]]
@@ -44,8 +44,8 @@ title: Hello World!
 
 <script id="user_detail_template" type="text/x-dot-template">
 <div class="side_container use_detail" data-id="[[=it.id]]" id="user-detail-[[=it.id]]">
-  <div class="single_bo">
-    <div class="avatar"><img src="[[=it.profile_image_url]]"/></div>
+  <div class="single_bo" style="border-bottom: none">
+    <div class="avatar" id="useravatar-[[=it.id]]"><img src="[[=it.profile_image_url]]"/></div>
     <div class="content">
       <div class="user">[[=it.name]]</div>
       <div>[[=it.description]]</div>
@@ -68,7 +68,7 @@ title: Hello World!
 
 <script id="template" type="text/x-dot-template">
 <div class="single_bo">
-  <div class="avatar"><img src="[[=it.user.profile_image_url]]"/></div>
+  <div class="avatar" id="useravatar-[[=it.user.id]]"><img src="[[=it.user.profile_image_url]]"/></div>
   <div class="content">
     <div class="user">[[=it.user.name]]
       <div class="action">
@@ -93,10 +93,40 @@ title: Hello World!
 </div>
 </script>
 
+<script id="user_statuses_template" type="text/x-dot-template">
+[[ for (i in it) { ]]
+  <div class="single_bo">
+    <div class="avatar" id="useravatar-[[=it[i].user.id]]"><img src="[[=it[i].user.profile_image_url]]"/></div>
+    <div class="content">
+      <div class="user">[[=it[i].user.name]]
+        <div class="action">
+          [[ if (it[i].bmiddle_pic || (it[i].retweeted_status && it[i].retweeted_status.bmiddle_pic)) {]]
+            <img src="assets/images/picture.png" class="icon"/>
+          [[}]]
+          <span class="stat">
+          <a href="#" class="reply">评论</a>([[=it[i].comments_count]])
+          <a href="#" class="retweet">转发</a>([[=it[i].reposts_count]])
+          </span>
+          <span class="time">[[=(new Date(it[i].created_at)).human()]]</span>
+        </div>
+      </div>
+      <span class="text">[[=it[i].text.autoLink().autoAt()]]</span>
+      [[ if (it[i].retweeted_status) { ]]
+        <div class="rt_content"><img src="assets/images/retweet.png" class="icon" />
+          <span class="rt_user"><a href="#users/[[=it[i].retweeted_status.user.id]]" class="user_link">[[=it[i].retweeted_status.user.name]]</a>：</span><span class="rt_text">[[=it[i].retweeted_status.text.autoLink().autoAt()]]</span>
+        </div>
+      [[ } ]]
+    </div>
+    <div style="clear:both"></div>
+  </div>
+[[ } ]]
+</script>
+
+
 <script id="comments_template" type="text/x-dot-template">
 [[ for (i in it) { ]]
 <div class="single_bo">
-  <div class="avatar"><img src="[[=it[i].user.profile_image_url]]"/></div>
+  <div class="avatar" id="useravatar-[[=it[i].user.id]]"><img src="[[=it[i].user.profile_image_url]]"/></div>
   <div class="content">
     <div class="user">[[=it[i].user.name]]
       <span class="time">[[=new Date(it[i].created_at).human() ]]</span>
@@ -143,7 +173,7 @@ title: Hello World!
       </div>
       <ul class="bo_list" id="home_tweets_list"> </ul>      
       <ul class="bo_list" id="public_tweets_list"> </ul>      
-      <ul class="bo_list" id="atme_tweets_list"> At me</ul>      
+      <ul class="bo_list" id="atme_tweets_list"> </ul>      
     </div>
     
     <div class="side" id="side">

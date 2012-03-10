@@ -75,6 +75,45 @@ $ ->
   })
   window.AtmeTweets = new AtmeTweetList
   
+  Comment = Backbone.Model.extend({})
+  CommentList = Backbone.Collection.extend({
+    model: Comment,
+    api: "#{api_prefix}/2/comments/show.json",
+    cache: {}
+    fetch_local: ->
+      API.apiGet "status_comments.json", {}, (data) =>
+        this.add(data["comments"])
+    by_status: (status_id, callback) ->
+      if this._expired(status_id)
+        API.apiGet @api, {id: status_id, since_id: @cache[status_id]["maxId"]}, (data) =>
+          cs = data["comments"]          
+          @cache[status_id]["lastUpdate"] = (new Date).getTime()
+          if (cs.length > 0)
+            @cache[status_id]["maxId"] = cs[0].id
+            @cache[status_id]["minId"] = cs[cs.length - 1].id
+          this.add(cs)
+          callback(this._filter_by_status(status_id))
+      else
+        callback(this._filter_by_status(status_id))
+        
+    _expired: (status_id) ->
+      if @cache[status_id]
+        (new Date()).getTime() - @cache[status_id]["lastUpdate"] > 120 * 1000 
+      else
+        @cache[status_id] = {}
+        return true
+      
+    _filter_by_status: (status_id) ->
+      if _.isUndefined(@cache[status_id])
+        @cache[status_id] = {lastUpdate: 0, maxId: 0, minId: 0}
+      this.select (c) -> 
+        c.toJSON().status.id == parseInt(status_id)
+      
+  })
+  
+  window.Comments = new CommentList
+  
+  
   User = Backbone.Model.extend({})
   UserList = Backbone.Collection.extend({
     model: User,
@@ -82,6 +121,7 @@ $ ->
       Tweets.bind("add", this.updateUser, this)
       PublicTweets.bind("add", this.updateUser, this)
       AtmeTweets.bind("add", this.updateUser, this)
+      Comments.bind("add", this.updateUser, this)
   
     updateUser: (s)->
       json = s.toJSON()
@@ -134,43 +174,7 @@ $ ->
   
   UserTweets = new UserTweetList
     
-  Comment = Backbone.Model.extend({})
-  CommentList = Backbone.Collection.extend({
-    model: Comment,
-    api: "#{api_prefix}/2/comments/show.json",
-    cache: {}
-    fetch_local: ->
-      API.apiGet "status_comments.json", {}, (data) =>
-        this.add(data["comments"])
-    by_status: (status_id, callback) ->
-      if this._expired(status_id)
-        API.apiGet @api, {id: status_id, since_id: @cache[status_id]["maxId"]}, (data) =>
-          cs = data["comments"]          
-          @cache[status_id]["lastUpdate"] = (new Date).getTime()
-          if (cs.length > 0)
-            @cache[status_id]["maxId"] = cs[0].id
-            @cache[status_id]["minId"] = cs[cs.length - 1].id
-          this.add(cs)
-          callback(this._filter_by_status(status_id))
-      else
-        callback(this._filter_by_status(status_id))
-        
-    _expired: (status_id) ->
-      if @cache[status_id]
-        (new Date()).getTime() - @cache[status_id]["lastUpdate"] > 120 * 1000 
-      else
-        @cache[status_id] = {}
-        return true
-      
-    _filter_by_status: (status_id) ->
-      if _.isUndefined(@cache[status_id])
-        @cache[status_id] = {lastUpdate: 0, maxId: 0, minId: 0}
-      this.select (c) -> 
-        c.toJSON().status.id == parseInt(status_id)
-      
-  })
-  
-  window.Comments = new CommentList
+
 
   _last = null
 
@@ -196,12 +200,14 @@ $ ->
       return this
     
     show_detail: -> 
+      
       if _last != null && _last != this
         $(_last.el).removeClass("selected")
       
       $(this.el).addClass("selected")
       _last = this
       Routes.navigate("tweets/#{this.model.id}", {trigger: true})
+      
     
     show_user_link: (el)->
       location.href=$(el.target).attr("href")
@@ -215,8 +221,9 @@ $ ->
       NewRetweet.render(this.model.id)
       return false
     
-    show_user: ->
-      Routes.navigate("users/#{this.model.get("user").id}", {trigger: true})
+    show_user: (event)->
+      user_id = $(event.currentTarget).attr("id").split("-")[1]
+      Routes.navigate("users/#{user_id}", {trigger: true})
       return false
   }) 
   
@@ -225,7 +232,13 @@ $ ->
     side_width: "500px"
     template: doT.template($("#template_full").text())
     comment_template: doT.template($("#comments_template").text())
-    
+    events: 
+      "click .avatar": "show_user"
+      
+    show_user: (event)->
+      user_id = $(event.currentTarget).attr("id").split("-")[1]
+      Routes.navigate("users/#{user_id}", {trigger: true})
+      return false
     render: ->
       _this = this
       $(this.el).scrollTop(0)
@@ -255,7 +268,7 @@ $ ->
   UserDetailView = Backbone.View.extend({
     el: $("#inner")
     side_width: "500px"
-    comment_template: doT.template($("#comments_template").text())
+    comment_template: doT.template($("#user_statuses_template").text())
     template: doT.template($("#user_detail_template").text())
     
     render: ->
@@ -448,7 +461,7 @@ $ ->
     routes: 
       "tweets/:id":     "show_tweet",  
       "users/:id":      "show_user" 
-  
+    
     show_tweet: (id)->
       if Nav.current == ".home"
         tweet = Tweets.get(id)
