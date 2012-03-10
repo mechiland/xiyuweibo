@@ -52,9 +52,10 @@ $ ->
     
     update_latest: ->
       API.apiGet @api, {since_id: @max_id}, (data) =>
-        this.add(data["statuses"].reverse()) #fix the events here to batch update
-        @min_id = this.at(0).id
-        @max_id = this.at(this.length - 1).id
+        if data.total_number > 0 
+          this.add(data["statuses"].reverse()) #fix the events here to batch update
+          @min_id = this.at(0).id
+          @max_id = this.at(this.length - 1).id
   
     fetch_local: ->
       API.apiGet "home_timeline.json", {}, (data) =>
@@ -69,12 +70,18 @@ $ ->
   })
   window.PublicTweets = new PublicTweetList
   
+  AtmeTweetList = TweetList.extend({
+    api: "#{api_prefix}/2/statuses/mentions.json"
+  })
+  window.AtmeTweets = new AtmeTweetList
+  
   User = Backbone.Model.extend({})
   UserList = Backbone.Collection.extend({
     model: User,
     initialize: ->
       Tweets.bind("add", this.updateUser, this)
       PublicTweets.bind("add", this.updateUser, this)
+      AtmeTweets.bind("add", this.updateUser, this)
   
     updateUser: (s)->
       json = s.toJSON()
@@ -289,13 +296,11 @@ $ ->
     addOne: (s)->
       view = new TweetView({model: s, id:"status-#{s.id}", attributes: {"data-id" : s.id}})
       $(this.el).prepend(view.render().el); #TODO: only scroll when nessary
-
-    getTweet: (id) ->
-      Tweets.get(parseInt(id))
-
+      
     render: ->
-      $("#home_tweets_list").show()
+      $(this.el).show()
       $("#public_tweets_list").hide()
+      $("#atme_tweets_list").hide()
   })
 
   HomeTweetsView = new TweetListView
@@ -304,14 +309,24 @@ $ ->
     el: $("#public_tweets_list")
     initialize: ->
       PublicTweets.bind('add', this.addOne, this)
-    getTweet: (id) ->
-      PublicTweets.get(parseInt(id))
     render: ->
       $("#home_tweets_list").hide()
-      $("#public_tweets_list").show()    
+      $("#atme_tweets_list").hide()
+      $(this.el).show()    
   })
   
   PublicTweetsView = new PublicTweetListView
+  
+  AtmeTweetListView = TweetListView.extend({
+    el: $("#atme_tweets_list")
+    initialize: ->
+      AtmeTweets.bind('add', this.addOne, this)
+    render: ->
+      $("#home_tweets_list").hide()
+      $("#public_tweets_list").hide()
+      $(this.el).show()
+  })
+  AtmeTweetsView = new AtmeTweetListView
     
   NewStatusView = Backbone.View.extend({
     el: $("#new_status")
@@ -402,6 +417,7 @@ $ ->
 
     goAtMe: ->
       this._updateIcon(".at_me");
+      AtmeTweetsView.render();
       return false;
 
     goPublic: ->
@@ -412,6 +428,7 @@ $ ->
     refresh: ->
       if @current == '.home' then Tweets.update_latest()
       if @current == '.public' then PublicTweets.update_latest()
+      if @current == '.at_me' then AtmeTweets.update_latest()
       return false;
 
     newStatus: ->
@@ -435,7 +452,9 @@ $ ->
     show_tweet: (id)->
       if Nav.current == ".home"
         tweet = Tweets.get(id)
-      else 
+      else if Nav.current == ".at_me"
+        tweet = AtmeTweets.get(id)
+      else
         tweet = PublicTweets.get(id)
       view = new TweetDetailView({model: tweet})
       view.render()

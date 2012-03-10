@@ -3,7 +3,7 @@ var api_prefix;
 api_prefix = "https://api.weibo.com";
 
 $(function() {
-  var AccessToken, Comment, CommentList, HomeTweetsView, NavView, NewCommentView, NewRetweetView, NewStatusView, PublicTweetList, PublicTweetListView, PublicTweetsView, Routes, Tweet, TweetDetailView, TweetList, TweetListView, TweetView, User, UserDetailView, UserList, UserTweetList, UserTweets, Users, Workspace, _last;
+  var AccessToken, AtmeTweetList, AtmeTweetListView, AtmeTweetsView, Comment, CommentList, HomeTweetsView, NavView, NewCommentView, NewRetweetView, NewStatusView, PublicTweetList, PublicTweetListView, PublicTweetsView, Routes, Tweet, TweetDetailView, TweetList, TweetListView, TweetView, User, UserDetailView, UserList, UserTweetList, UserTweets, Users, Workspace, _last;
   AccessToken = Backbone.Model.extend({
     defaults: function() {
       return {
@@ -61,9 +61,11 @@ $(function() {
       return API.apiGet(this.api, {
         since_id: this.max_id
       }, function(data) {
-        _this.add(data["statuses"].reverse());
-        _this.min_id = _this.at(0).id;
-        return _this.max_id = _this.at(_this.length - 1).id;
+        if (data.total_number > 0) {
+          _this.add(data["statuses"].reverse());
+          _this.min_id = _this.at(0).id;
+          return _this.max_id = _this.at(_this.length - 1).id;
+        }
       });
     },
     fetch_local: function() {
@@ -78,12 +80,17 @@ $(function() {
     api: "" + api_prefix + "/2/statuses/public_timeline.json"
   });
   window.PublicTweets = new PublicTweetList;
+  AtmeTweetList = TweetList.extend({
+    api: "" + api_prefix + "/2/statuses/mentions.json"
+  });
+  window.AtmeTweets = new AtmeTweetList;
   User = Backbone.Model.extend({});
   UserList = Backbone.Collection.extend({
     model: User,
     initialize: function() {
       Tweets.bind("add", this.updateUser, this);
-      return PublicTweets.bind("add", this.updateUser, this);
+      PublicTweets.bind("add", this.updateUser, this);
+      return AtmeTweets.bind("add", this.updateUser, this);
     },
     updateUser: function(s) {
       var json, user1, user2;
@@ -360,12 +367,10 @@ $(function() {
       });
       return $(this.el).prepend(view.render().el);
     },
-    getTweet: function(id) {
-      return Tweets.get(parseInt(id));
-    },
     render: function() {
-      $("#home_tweets_list").show();
-      return $("#public_tweets_list").hide();
+      $(this.el).show();
+      $("#public_tweets_list").hide();
+      return $("#atme_tweets_list").hide();
     }
   });
   HomeTweetsView = new TweetListView;
@@ -374,15 +379,25 @@ $(function() {
     initialize: function() {
       return PublicTweets.bind('add', this.addOne, this);
     },
-    getTweet: function(id) {
-      return PublicTweets.get(parseInt(id));
-    },
     render: function() {
       $("#home_tweets_list").hide();
-      return $("#public_tweets_list").show();
+      $("#atme_tweets_list").hide();
+      return $(this.el).show();
     }
   });
   PublicTweetsView = new PublicTweetListView;
+  AtmeTweetListView = TweetListView.extend({
+    el: $("#atme_tweets_list"),
+    initialize: function() {
+      return AtmeTweets.bind('add', this.addOne, this);
+    },
+    render: function() {
+      $("#home_tweets_list").hide();
+      $("#public_tweets_list").hide();
+      return $(this.el).show();
+    }
+  });
+  AtmeTweetsView = new AtmeTweetListView;
   NewStatusView = Backbone.View.extend({
     el: $("#new_status"),
     api: "" + api_prefix + "/2/statuses/update.json",
@@ -491,6 +506,7 @@ $(function() {
     },
     goAtMe: function() {
       this._updateIcon(".at_me");
+      AtmeTweetsView.render();
       return false;
     },
     goPublic: function() {
@@ -501,6 +517,7 @@ $(function() {
     refresh: function() {
       if (this.current === '.home') Tweets.update_latest();
       if (this.current === '.public') PublicTweets.update_latest();
+      if (this.current === '.at_me') AtmeTweets.update_latest();
       return false;
     },
     newStatus: function() {
@@ -524,6 +541,8 @@ $(function() {
       var tweet, view;
       if (Nav.current === ".home") {
         tweet = Tweets.get(id);
+      } else if (Nav.current === ".at_me") {
+        tweet = AtmeTweets.get(id);
       } else {
         tweet = PublicTweets.get(id);
       }
