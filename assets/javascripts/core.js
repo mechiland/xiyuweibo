@@ -3,7 +3,7 @@ var api_prefix;
 api_prefix = "https://api.weibo.com";
 
 $(function() {
-  var AccessToken, Comment, CommentList, ListView, NewCommentView, NewRetweetView, NewStatusView, Routes, Tweet, TweetDetailView, TweetList, TweetView, TweetsView, User, UserDetailView, UserList, UserTweetList, UserTweets, Users, Workspace, _last;
+  var AccessToken, Comment, CommentList, ListView, NavView, NewCommentView, NewRetweetView, NewStatusView, Routes, Tweet, TweetDetailView, TweetList, TweetView, TweetsView, User, UserDetailView, UserList, UserTweetList, UserTweets, Users, Workspace, _last;
   AccessToken = Backbone.Model.extend({
     defaults: function() {
       return {
@@ -340,7 +340,6 @@ $(function() {
       return API.bind("token:activate", this.updateUI, this);
     },
     updateUI: function() {
-      $(".nav_buttons").show("slow");
       return $("#logo").hide("fast");
     },
     addOne: function(s) {
@@ -434,7 +433,8 @@ $(function() {
     api: "" + api_prefix + "/2/statuses/repost.json",
     render: function(status_id) {
       this.status_id = status_id;
-      return NewStatusView.prototype.render.call(this);
+      NewStatusView.prototype.render.call(this);
+      return $(this.el).find(".post_input_content").val("转发微博");
     },
     _postData: function() {
       var input;
@@ -452,6 +452,50 @@ $(function() {
   window.NewStatus = new NewStatusView;
   window.NewComment = new NewCommentView;
   window.NewRetweet = new NewRetweetView;
+  NavView = Backbone.View.extend({
+    el: $("nav"),
+    current: '.home',
+    events: {
+      "click .home": "goHome",
+      "click .at_me": "goAtMe",
+      "click .public": "goPublic",
+      "click .refresh": "refresh",
+      "click .new_status": "newStatus"
+    },
+    initialize: function() {
+      return API.bind("token:activate", this.render, this);
+    },
+    render: function() {
+      return $(this.el).find(".nav_buttons").show("slow");
+    },
+    goHome: function() {
+      this._updateIcon(".home");
+      return false;
+    },
+    goAtMe: function() {
+      this._updateIcon(".at_me");
+      return false;
+    },
+    goPublic: function() {
+      this._updateIcon(".public");
+      return false;
+    },
+    refresh: function() {
+      Tweets.update_latest();
+      return false;
+    },
+    newStatus: function() {
+      NewStatus.render();
+      return false;
+    },
+    _updateIcon: function(new_state) {
+      if (new_state === this.current) return;
+      $(this.el).find(this.current).removeClass("nav_selected");
+      this.current = new_state;
+      return $(this.el).find(this.current).addClass("nav_selected");
+    }
+  });
+  window.Nav = new NavView;
   Workspace = Backbone.Router.extend({
     routes: {
       "tweets/:id": "show_tweet",

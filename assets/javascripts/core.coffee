@@ -275,8 +275,7 @@ $ ->
       Tweets.bind('add', this.addOne, this)
       API.bind("token:activate", this.updateUI, this)
       
-    updateUI: ->
-      $(".nav_buttons").show("slow")
+    updateUI: ->      
       $("#logo").hide("fast");
       
     addOne: (s)->
@@ -300,7 +299,7 @@ $ ->
       "click .submit" : "submit"
     }
     
-    render: ->
+    render: ->      
       $(this.el).animate({"top": "80px"}, "fast")
       $(this.el).find(".post_input_content").focus()
       $("#overlay").css("z-index", "150");
@@ -311,11 +310,6 @@ $ ->
       
     submit: ->
       this._postData()
-      # input = $(this.el).find(".post_input_content")
-      # API.apiPost @api, {status: input.val()}, =>
-      #   input.val("")
-      #   Tweets.update_latest()
-      
       $(this.el).animate {"top": "-100px"}, "fast"
       $("#overlay").css("z-index", "-1");
       
@@ -349,6 +343,7 @@ $ ->
     render: (status_id) ->
       @status_id = status_id
       NewStatusView.prototype.render.call(this); # ugly
+      $(this.el).find(".post_input_content").val("转发微博")      
     
     _postData: -> 
       input = $(this.el).find(".post_input_content")
@@ -360,7 +355,52 @@ $ ->
   window.NewStatus = new NewStatusView
   window.NewComment = new NewCommentView
   window.NewRetweet = new NewRetweetView
+  
+  NavView = Backbone.View.extend({
+    el: $("nav")
+    current: '.home'
+    events: {
+      "click .home" : "goHome",
+      "click .at_me" : "goAtMe",
+      "click .public" : "goPublic",
+      "click .refresh" : "refresh",
+      "click .new_status" : "newStatus"
+    }
+    
+    initialize: ->
+      API.bind("token:activate", this.render, this)
+          
+    render: ->
+      $(this.el).find(".nav_buttons").show("slow")
+      
+    goHome: ->
+      this._updateIcon(".home");
+      return false;
 
+    goAtMe: ->
+      this._updateIcon(".at_me");
+      return false;
+
+    goPublic: ->
+      this._updateIcon(".public");
+      return false;
+
+    refresh: ->
+      Tweets.update_latest()
+      return false;
+
+    newStatus: ->
+      NewStatus.render()
+      return false;
+    
+    _updateIcon: (new_state)->
+      if new_state == @current then return
+      $(this.el).find(@current).removeClass("nav_selected")
+      @current = new_state
+      $(this.el).find(@current).addClass("nav_selected")    
+  })
+  window.Nav = new NavView
+  
   # Router
   Workspace = Backbone.Router.extend({
     routes: 

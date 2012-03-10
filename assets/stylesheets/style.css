@@ -34,15 +34,22 @@ nav img {
   margin-top: 5px;
   width: 24px;
   height: 24px;
-  border-radius: 10px;
+  border-radius: 20px;
 }
 
 nav img:hover {
-  box-shadow: 0 0 50px yellow;
+  box-shadow: 0 0 15px #F3E74D;
+  background: #F3E74D;
 }
 
 nav img:active {
-  box-shadow: 0 0 20px yellow;
+  box-shadow: 0 0 15px #DCD202;
+  background: #DCD202;
+}
+
+.nav_selected {
+  box-shadow: 0 0 15px #F3E74D;
+  background: #F3E74D;
 }
 
 .icon {

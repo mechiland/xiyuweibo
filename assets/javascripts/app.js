@@ -61,12 +61,6 @@ $(function() {
     Tweets.fetch_local();
     return Comments.fetch_local();
   });
-  $("#btn_fetch").click(function() {
-    return Tweets.update_latest();
-  });
-  $("#nav_new_status").click(function() {
-    return NewStatus.render();
-  });
   $("#btn_login").click(function() {
     var l;
     l = macgap.window.open({

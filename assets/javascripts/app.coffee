@@ -46,12 +46,6 @@ $ ->
   $("#btn_fetch2").click ->
     Tweets.fetch_local()
     Comments.fetch_local()
-
-  $("#btn_fetch").click ->
-    Tweets.update_latest()
-  
-  $("#nav_new_status").click -> 
-    NewStatus.render()
   
   $("#btn_login").click ->
     l = macgap.window.open({url: "public/auth_sina.html", width: 640, height: 480})
