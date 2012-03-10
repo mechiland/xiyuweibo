@@ -47,11 +47,6 @@ $(function() {
     }
   });
   window.API = new AccessTokenList;
-  User = Backbone.Model.extend({});
-  UserList = Backbone.Collection.extend({
-    model: User
-  });
-  Users = new UserList;
   Tweet = Backbone.Model.extend({});
   TweetList = Backbone.Collection.extend({
     model: Tweet,
@@ -59,25 +54,7 @@ $(function() {
     max_id: 0,
     api: "" + api_prefix + "/2/statuses/home_timeline.json",
     initialize: function() {
-      API.bind("token:activate", this.update_latest, this);
-      return this.bind("add", this.updateUser, this);
-    },
-    updateUser: function(s) {
-      var json, user1, user2;
-      json = s.toJSON();
-      user1 = json["user"];
-      if (json["retweeted_status"]) user2 = json["retweeted_status"]["user"];
-      this._updateUser(user1);
-      if (user2) return this._updateUser(user2);
-    },
-    _updateUser: function(json) {
-      var u;
-      u = Users.get(json["id"]);
-      if (u) {
-        return u.set(json);
-      } else {
-        return Users.add(new User(json));
-      }
+      return API.bind("token:activate", this.update_latest, this);
     },
     update_latest: function() {
       var _this = this;
@@ -97,6 +74,31 @@ $(function() {
     }
   });
   window.Tweets = new TweetList;
+  User = Backbone.Model.extend({});
+  UserList = Backbone.Collection.extend({
+    model: User,
+    initialize: function() {
+      return Tweets.bind("add", this.updateUser, this);
+    },
+    updateUser: function(s) {
+      var json, user1, user2;
+      json = s.toJSON();
+      user1 = json["user"];
+      if (json["retweeted_status"]) user2 = json["retweeted_status"]["user"];
+      this._updateUser(user1);
+      if (user2) return this._updateUser(user2);
+    },
+    _updateUser: function(json) {
+      var u;
+      u = Users.get(json["id"]);
+      if (u) {
+        return u.set(json);
+      } else {
+        return Users.add(new User(json));
+      }
+    }
+  });
+  Users = new UserList;
   UserTweetList = TweetList.extend({
     api: "" + api_prefix + "/2/statuses/user_timeline.json",
     cache: {},
@@ -334,7 +336,7 @@ $(function() {
     }
   });
   TweetsView = Backbone.View.extend({
-    el: $("#tweets_list"),
+    el: $("#home_tweets_list"),
     initialize: function() {
       Tweets.bind('add', this.addOne, this);
       return API.bind("token:activate", this.updateUI, this);
@@ -351,7 +353,7 @@ $(function() {
           "data-id": s.id
         }
       });
-      return $("#tweets_list").prepend(view.render().el);
+      return $(this.el).prepend(view.render().el);
     },
     showTweet: function(id) {
       var view;

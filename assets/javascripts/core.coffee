@@ -40,13 +40,6 @@ $ ->
   
   window.API = new AccessTokenList
   
-  User = Backbone.Model.extend({})
-  UserList = Backbone.Collection.extend({
-    model: User
-  })
-  
-  Users = new UserList
-  
   Tweet = Backbone.Model.extend({})
   TweetList = Backbone.Collection.extend({
     model: Tweet,
@@ -56,21 +49,6 @@ $ ->
     
     initialize: ->
       API.bind("token:activate", this.update_latest, this)
-      this.bind("add", this.updateUser, this)
-        
-    updateUser: (s)->
-      json = s.toJSON()
-      user1 = json["user"]
-      if json["retweeted_status"] then user2 = json["retweeted_status"]["user"]
-      this._updateUser(user1)
-      if user2 then this._updateUser(user2)
-    
-    _updateUser: (json) ->
-      u = Users.get(json["id"])
-      if u
-        u.set json # TODO: skip the id
-      else
-        Users.add(new User(json))
     
     update_latest: ->
       API.apiGet @api, {since_id: @max_id}, (data) =>
@@ -83,8 +61,32 @@ $ ->
         this.add(data["statuses"].reverse())
   
   });
-
+  
   window.Tweets = new TweetList
+  
+  User = Backbone.Model.extend({})
+  UserList = Backbone.Collection.extend({
+    model: User,
+    initialize: ->
+      Tweets.bind("add", this.updateUser, this)
+  
+    updateUser: (s)->
+      json = s.toJSON()
+      user1 = json["user"]
+      if json["retweeted_status"] then user2 = json["retweeted_status"]["user"]
+      this._updateUser(user1)
+      if user2 then this._updateUser(user2)
+
+    _updateUser: (json) ->
+      u = Users.get(json["id"])
+      if u
+        u.set json # TODO: skip the id
+      else
+        Users.add(new User(json))
+
+  })
+  
+  Users = new UserList
   
   UserTweetList = TweetList.extend({
     api: "#{api_prefix}/2/statuses/user_timeline.json"
@@ -270,7 +272,7 @@ $ ->
   })
   
   TweetsView = Backbone.View.extend({
-    el: $("#tweets_list")
+    el: $("#home_tweets_list")
     initialize: -> 
       Tweets.bind('add', this.addOne, this)
       API.bind("token:activate", this.updateUI, this)
@@ -280,7 +282,7 @@ $ ->
       
     addOne: (s)->
       view = new TweetView({model: s, id:"status-#{s.id}", attributes: {"data-id" : s.id}})
-      $("#tweets_list").prepend(view.render().el); #TODO: only scroll when nessary
+      $(this.el).prepend(view.render().el); #TODO: only scroll when nessary
     showTweet: (id) ->
       view = new TweetDetailView({model: Tweets.get(parseInt(id))})
       view.render()
