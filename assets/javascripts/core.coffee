@@ -127,9 +127,6 @@ $ ->
     fetch_local: ->
       API.apiGet "status_comments.json", {}, (data) =>
         this.add(data["comments"])
-    fetch_by_status: (status_id)->
-      API.apiGet @api, {id: status_id}, (data) =>
-        this.add(data["comments"])
     by_status: (status_id, callback) ->
       if this._expired(status_id)
         API.apiGet @api, {id: status_id, since_id: @cache[status_id]["maxId"]}, (data) =>
@@ -196,9 +193,11 @@ $ ->
       return false;
     
     reply: ->
+      NewComment.render(this.model.id)
       return false
       
     retweet: ->
+      NewRetweet.render(this.model.id)
       return false
     
     show_user: ->
@@ -260,13 +259,13 @@ $ ->
       this._animate()
     
     _animate: ->
-            _this = this
-            $(this.el).animate {"left": "+#{this.side_width}"}, "fast", -> 
-              $(_this.el).find(".anim_block").each (el) ->
-                old = $(this).css("left")
-                if old == "0px" then new_width = "-#{_this.side_width}" else new_width = "0px"
-                $(this).css("left", new_width)
-                $(_this.el).css("left", "0px")
+      _this = this
+      $(this.el).animate {"left": "+#{this.side_width}"}, "fast", -> 
+        $(_this.el).find(".anim_block").each (el) ->
+          old = $(this).css("left")
+          if old == "0px" then new_width = "-#{_this.side_width}" else new_width = "0px"
+          $(this).css("left", new_width)
+          $(_this.el).css("left", "0px")
           
   })
   
@@ -303,7 +302,7 @@ $ ->
     
     render: ->
       $(this.el).animate({"top": "80px"}, "fast")
-      $(this.el).find("textarea").focus()
+      $(this.el).find(".post_input_content").focus()
       $("#overlay").css("z-index", "150");
     
     cancel: ->
@@ -311,15 +310,56 @@ $ ->
       $("#overlay").css("z-index", "-1");
       
     submit: ->
-      API.apiPost @api, { status: $("#new_status_content").val() }, ->
-        $("#new_status_content").val("")
-        Tweets.update_latest()
+      this._postData()
+      # input = $(this.el).find(".post_input_content")
+      # API.apiPost @api, {status: input.val()}, =>
+      #   input.val("")
+      #   Tweets.update_latest()
       
       $(this.el).animate {"top": "-100px"}, "fast"
       $("#overlay").css("z-index", "-1");
+      
+    _postData: ->
+      input = $(this.el).find(".post_input_content")
+      API.apiPost @api, {status: input.val()}, =>
+        input.val("")
+        Tweets.update_latest()
+      
+  })
+  
+  NewCommentView = NewStatusView.extend({
+    el: $("#new_comment")
+    api: "#{api_prefix}/2/comments/create.json"
+    render: (status_id) ->
+      @status_id = status_id
+      NewStatusView.prototype.render.call(this); # ugly
+    
+    _postData: -> 
+      input = $(this.el).find(".post_input_content")
+      API.apiPost @api, { comment: input.val(), id: @status_id }, =>
+        input.val("")
+        Comments.by_status @status_id, ->
+          console.log("update comments")
+        # Tweets.update_latest()
+  })
+  
+  NewRetweetView = NewStatusView.extend({
+    el: $("#new_retweet")
+    api: "#{api_prefix}/2/statuses/repost.json"
+    render: (status_id) ->
+      @status_id = status_id
+      NewStatusView.prototype.render.call(this); # ugly
+    
+    _postData: -> 
+      input = $(this.el).find(".post_input_content")
+      API.apiPost @api, { status: input.val(), id: @status_id }, =>
+        input.val("")
+        Tweets.update_latest()
   })
   
   window.NewStatus = new NewStatusView
+  window.NewComment = new NewCommentView
+  window.NewRetweet = new NewRetweetView
 
   # Router
   Workspace = Backbone.Router.extend({

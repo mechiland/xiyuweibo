@@ -76,6 +76,7 @@ nav img:active {
   position: relative;
   height: 100%;
   z-index: 1px;
+  overflow: auto;
 }
 
 .anim_block {
@@ -221,7 +222,7 @@ a {
   text-align: right;
 }
 
-#new_status {
+.post_input {
   position: absolute;
   z-index: 200;
   left: 0px;
@@ -234,11 +235,11 @@ a {
   box-shadow: 0px 0px 6px #666;
 }
 
-.new_status_container {
+.post_input_container {
   padding: 10px;
 }
 
-.new_status_container img {
+.post_input_container img {
   border-radius: 6px;
 }
 
@@ -261,7 +262,7 @@ a {
   margin-left: 10px;
 }
 
-#new_status textarea {
+.post_input textarea {
   border: none;
   width: 300px;
   height: 50px;
@@ -270,7 +271,7 @@ a {
   font-size: 12px;
 }
 
-#new_status textarea:active {
+.post_input textarea:active {
   border: none;
 }
 

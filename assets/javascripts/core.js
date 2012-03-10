@@ -3,7 +3,7 @@ var api_prefix;
 api_prefix = "https://api.weibo.com";
 
 $(function() {
-  var AccessToken, Comment, CommentList, ListView, NewStatusView, Routes, Tweet, TweetDetailView, TweetList, TweetView, TweetsView, User, UserDetailView, UserList, UserTweetList, UserTweets, Users, Workspace, _last;
+  var AccessToken, Comment, CommentList, ListView, NewCommentView, NewRetweetView, NewStatusView, Routes, Tweet, TweetDetailView, TweetList, TweetView, TweetsView, User, UserDetailView, UserList, UserTweetList, UserTweets, Users, Workspace, _last;
   AccessToken = Backbone.Model.extend({
     defaults: function() {
       return {
@@ -149,14 +149,6 @@ $(function() {
         return _this.add(data["comments"]);
       });
     },
-    fetch_by_status: function(status_id) {
-      var _this = this;
-      return API.apiGet(this.api, {
-        id: status_id
-      }, function(data) {
-        return _this.add(data["comments"]);
-      });
-    },
     by_status: function(status_id, callback) {
       var _this = this;
       if (this._expired(status_id)) {
@@ -235,9 +227,11 @@ $(function() {
       return false;
     },
     reply: function() {
+      NewComment.render(this.model.id);
       return false;
     },
     retweet: function() {
+      NewRetweet.render(this.model.id);
       return false;
     },
     show_user: function() {
@@ -385,7 +379,7 @@ $(function() {
       $(this.el).animate({
         "top": "80px"
       }, "fast");
-      $(this.el).find("textarea").focus();
+      $(this.el).find(".post_input_content").focus();
       return $("#overlay").css("z-index", "150");
     },
     cancel: function() {
@@ -395,19 +389,69 @@ $(function() {
       return $("#overlay").css("z-index", "-1");
     },
     submit: function() {
-      API.apiPost(this.api, {
-        status: $("#new_status_content").val()
-      }, function() {
-        $("#new_status_content").val("");
-        return Tweets.update_latest();
-      });
+      this._postData();
       $(this.el).animate({
         "top": "-100px"
       }, "fast");
       return $("#overlay").css("z-index", "-1");
+    },
+    _postData: function() {
+      var input;
+      var _this = this;
+      input = $(this.el).find(".post_input_content");
+      return API.apiPost(this.api, {
+        status: input.val()
+      }, function() {
+        input.val("");
+        return Tweets.update_latest();
+      });
+    }
+  });
+  NewCommentView = NewStatusView.extend({
+    el: $("#new_comment"),
+    api: "" + api_prefix + "/2/comments/create.json",
+    render: function(status_id) {
+      this.status_id = status_id;
+      return NewStatusView.prototype.render.call(this);
+    },
+    _postData: function() {
+      var input;
+      var _this = this;
+      input = $(this.el).find(".post_input_content");
+      return API.apiPost(this.api, {
+        comment: input.val(),
+        id: this.status_id
+      }, function() {
+        input.val("");
+        return Comments.by_status(_this.status_id, function() {
+          return console.log("update comments");
+        });
+      });
+    }
+  });
+  NewRetweetView = NewStatusView.extend({
+    el: $("#new_retweet"),
+    api: "" + api_prefix + "/2/statuses/repost.json",
+    render: function(status_id) {
+      this.status_id = status_id;
+      return NewStatusView.prototype.render.call(this);
+    },
+    _postData: function() {
+      var input;
+      var _this = this;
+      input = $(this.el).find(".post_input_content");
+      return API.apiPost(this.api, {
+        status: input.val(),
+        id: this.status_id
+      }, function() {
+        input.val("");
+        return Tweets.update_latest();
+      });
     }
   });
   window.NewStatus = new NewStatusView;
+  window.NewComment = new NewCommentView;
+  window.NewRetweet = new NewRetweetView;
   Workspace = Backbone.Router.extend({
     routes: {
       "tweets/:id": "show_tweet",
