@@ -53,9 +53,7 @@ $(function() {
     min_id: 0,
     max_id: 0,
     api: "" + api_prefix + "/2/statuses/home_timeline.json",
-    initialize: function() {
-      return API.bind("token:activate", this.update_latest, this);
-    },
+    initialize: function() {},
     update_latest: function() {
       var _this = this;
       return API.apiGet(this.api, {
@@ -77,7 +75,10 @@ $(function() {
   });
   window.Tweets = new TweetList;
   PublicTweetList = TweetList.extend({
-    api: "" + api_prefix + "/2/statuses/public_timeline.json"
+    api: "" + api_prefix + "/2/statuses/public_timeline.json",
+    initialize: function() {
+      return API.bind("token:activate", this.update_latest, this);
+    }
   });
   window.PublicTweets = new PublicTweetList;
   AtmeTweetList = TweetList.extend({
@@ -531,10 +532,19 @@ $(function() {
       "click .new_status": "newStatus"
     },
     initialize: function() {
-      return API.bind("token:activate", this.render, this);
+      API.bind("token:activate", this.render, this);
+      return API.bind("token:activate", this.poll, this);
     },
     render: function() {
       return $(this.el).find(".nav_buttons").show("slow");
+    },
+    poll: function() {
+      var _this = this;
+      Tweets.update_latest();
+      AtmeTweets.update_latest();
+      return delay(120 * 1000, function() {
+        return _this.poll();
+      });
     },
     goHome: function() {
       this._updateIcon(".home");

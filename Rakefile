@@ -11,5 +11,6 @@ task :build do
   system "cp -rf _site/ #{target}#{app_name}/Contents/Resources/public"
   system "mv #{target}#{app_name}/Contents/MacOS/MacGap #{target}#{app_name}/Contents/MacOS/XiyuWeibo"
   system "cp -f build/Info.plist #{target}#{app_name}/Contents/Info.plist"
+  system "cp -f build/Credits.rtf #{target}#{app_name}/Contents/Resources/en.lproj/Credits.rtf"
   system "sips -s format icns build/application.png --out #{target}#{app_name}/Contents/Resources/application.icns"
 end

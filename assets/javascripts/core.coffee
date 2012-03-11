@@ -48,7 +48,8 @@ $ ->
     api: "#{api_prefix}/2/statuses/home_timeline.json"
     
     initialize: ->
-      API.bind("token:activate", this.update_latest, this)
+      # let the NavView to start it
+      # API.bind("token:activate", this.update_latest, this)
     
     update_latest: ->
       API.apiGet @api, {since_id: @max_id}, (data) =>
@@ -67,6 +68,8 @@ $ ->
   
   PublicTweetList = TweetList.extend({
     api: "#{api_prefix}/2/statuses/public_timeline.json"
+    initialize: ->
+      API.bind("token:activate", this.update_latest, this)
   })
   window.PublicTweets = new PublicTweetList
   
@@ -173,7 +176,7 @@ $ ->
   })
   
   Users = new UserList
-
+  
   _last = null
 
   TweetView = Backbone.View.extend({
@@ -436,10 +439,17 @@ $ ->
     
     initialize: ->
       API.bind("token:activate", this.render, this)
+      API.bind("token:activate", this.poll, this)
           
     render: ->
       $(this.el).find(".nav_buttons").show("slow")
-      
+    
+    poll: ->
+      Tweets.update_latest()
+      AtmeTweets.update_latest()
+      delay 120 * 1000, =>
+        this.poll()
+    
     goHome: ->
       this._updateIcon(".home");
       HomeTweetsView.render();
