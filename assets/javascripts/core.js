@@ -327,10 +327,19 @@ $(function() {
     comment_template: doT.template($("#user_statuses_template").text()),
     template: doT.template($("#user_detail_template").text()),
     events: {
-      "click .user_link": "show_user_link"
+      "click .user_link": "show_user_link",
+      "click .userstatus": "show_detail"
     },
     show_user_link: function(el) {
-      location.href = $(el.target).attr("href");
+      location.href = $(el.currentTarget).attr("href");
+      return false;
+    },
+    show_detail: function(el) {
+      var id;
+      id = $(el.currentTarget).attr("id").split("-")[1];
+      Routes.navigate("tweets/" + id, {
+        trigger: true
+      });
       return false;
     },
     render: function() {
@@ -348,6 +357,7 @@ $(function() {
             tweets = _.map(data, function(t) {
               return t.toJSON();
             });
+            console.log("loaded, start rendering...");
             return $(".recent_statuses").html(_this.comment_template(tweets));
           });
         }
@@ -573,6 +583,7 @@ $(function() {
       } else {
         tweet = PublicTweets.get(id);
       }
+      if (tweet === null || _.isUndefined(tweet)) tweet = UserTweets.get(id);
       view = new TweetDetailView({
         model: tweet
       });

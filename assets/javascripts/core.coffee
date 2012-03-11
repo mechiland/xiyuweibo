@@ -276,10 +276,16 @@ $ ->
     template: doT.template($("#user_detail_template").text())
     events: 
       "click .user_link": "show_user_link"
+      "click .userstatus": "show_detail"
+      
     show_user_link: (el)->
-      location.href=$(el.target).attr("href")
+      location.href=$(el.currentTarget).attr("href")
       return false;
     
+    show_detail: (el) ->
+      id = $(el.currentTarget).attr("id").split("-")[1]
+      Routes.navigate("tweets/#{id}", {trigger: true})
+      return false;
     
     render: ->
       _this = this
@@ -292,6 +298,7 @@ $ ->
           UserTweets.by_user _this.model.id, (data)->
             $(".loading").hide();
             tweets = _.map data, (t) -> t.toJSON()
+            console.log("loaded, start rendering...")
             $(".recent_statuses").html(_this.comment_template(tweets))
       
       this._animate()
@@ -479,6 +486,10 @@ $ ->
         tweet = AtmeTweets.get(id)
       else
         tweet = PublicTweets.get(id)
+
+      if tweet == null or _.isUndefined(tweet)
+        tweet = UserTweets.get(id)
+      
       view = new TweetDetailView({model: tweet})
       view.render()
   

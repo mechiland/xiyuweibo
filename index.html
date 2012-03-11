@@ -45,8 +45,8 @@ title: Hello World!
 <script id="user_detail_template" type="text/x-dot-template">
 <div class="side_container use_detail" data-id="[[=it.id]]" id="user-detail-[[=it.id]]">
   <div class="single_bo" style="border-bottom: none">
-    <div class="avatar ref_user" id="useravatar-[[=it.id]]"><img src="[[=it.profile_image_url]]"/></div>
-    <div class="content">
+    <div class="avatar ref_user" id="useravatar-[[=it.id]]"><img src="[[=it.avatar_large]]" style="width: 180px; height: 180px"/></div>
+    <div class="content" style="margin-left: 190px">
       <div class="user">[[=it.name]]</div>
       <div>[[=it.description]]</div>
       <div>[[=it.location]]</div>
@@ -95,7 +95,7 @@ title: Hello World!
 
 <script id="user_statuses_template" type="text/x-dot-template">
 [[ for (i in it) { ]]
-  <div class="single_bo">
+  <div class="single_bo userstatus" id="userstatus-[[=it[i].id]]">
     <div class="avatar ref_user" id="useravatar-[[=it[i].user.id]]"><img src="[[=it[i].user.profile_image_url]]"/></div>
     <div class="content">
       <div class="user">[[=it[i].user.name]]
@@ -111,7 +111,7 @@ title: Hello World!
         </div>
       </div>
       <span class="text">[[=it[i].text.autoLink().autoAt()]]</span>
-      [[ if (it[i].retweeted_status) { ]]
+      [[ if (it[i].retweeted_status && it[i].retweeted_status.user) { ]]
         <div class="rt_content"><img src="assets/images/retweet.png" class="icon" />
           <span class="rt_user"><a href="#users/[[=it[i].retweeted_status.user.id]]" class="user_link">[[=it[i].retweeted_status.user.name]]</a>：</span><span class="rt_text">[[=it[i].retweeted_status.text.autoLink().autoAt()]]</span>
         </div>
