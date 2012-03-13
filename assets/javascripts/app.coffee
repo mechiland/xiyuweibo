@@ -31,6 +31,7 @@ check = (w) ->
   else
     token = w.url().match(pattern)[1]
     API.pick(token)
+    w.close() 
 
 $ ->
   

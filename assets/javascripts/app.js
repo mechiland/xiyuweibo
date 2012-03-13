@@ -44,7 +44,8 @@ check = function(w) {
     });
   } else {
     token = w.url().match(pattern)[1];
-    return API.pick(token);
+    API.pick(token);
+    return w.close();
   }
 };
 
